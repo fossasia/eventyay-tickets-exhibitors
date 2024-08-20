@@ -1,0 +1,42 @@
+[project]
+name = "Exhibitors"
+dynamic = ["version"]
+description = "This plugin enables to add and control exhibitors in eventyay"
+readme = "README.rst"
+license = {text = "Apache"}
+keywords = ["pretix"]
+authors = [
+    {name = "Srivatsav Auswin", email = "1012srivatsavas@gmail.com"},
+]
+maintainers = [
+    {name = "Srivatsav Auswin", email = "1012srivatsavas@gmail.com"},
+]
+
+dependencies = [
+]
+
+[project.entry-points."pretix.plugin"]
+exhibitors = "exhibitors:PretixPluginMeta"
+
+[project.entry-points."distutils.commands"]
+build = "pretix_plugin_build.build:CustomBuild"
+
+[build-system]
+requires = [
+    "setuptools",
+    "pretix-plugin-build",
+]
+
+[project.urls]
+homepage = "https://github.com/Sak1012/eventyay-exhibitors"
+repository = "https://github.com/Sak1012/eventyay-exhibitors"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "exhibitors.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["pretix*"]
+namespaces = false
