@@ -8,10 +8,9 @@ except ImportError:
     raise RuntimeError("Please use pretix 2.7 or above to run this plugin!")
 
 
-class PluginApp(PluginConfig):
-    default = True
-    name = "exhibitors"
-    verbose_name = "exhibitors"
+class ExhibitorApp(PluginConfig):
+    name = gettext_lazy("exhibitors")
+    verbose_name = gettext_lazy("exhibitors")
 
     class PretixPluginMeta:
         name = gettext_lazy("exhibitors")
