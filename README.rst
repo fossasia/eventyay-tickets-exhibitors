@@ -1,25 +1,26 @@
-exhibitors
+Exhibitors
 ==========================
 
-This is a plugin for `pretix`_. 
+This is a plugin for `eventyay-tickets`_. 
 
 This plugin enables to add and control exhibitors in eventyay
 
 Development setup
 -----------------
 
-1. Make sure that you have a working `pretix development setup`_.
+1. Make sure that you have a working `eventyay-tickets development setup`_.
 
-2. Clone this repository.
+2. Clone this repository, eg to ``local/exhibitors``.
 
-3. Activate the virtual environment you use for pretix development.
+3. Activate the virtual environment you use for eventyay-tickets development.
 
-4. Execute ``python setup.py develop`` within this directory to register this application with pretix's plugin registry.
+4. Execute ``pip install -e .`` within this directory to register this application with eventyay-tickets plugin registry.
 
 5. Execute ``make`` within this directory to compile translations.
 
-6. Restart your local pretix server. You can now use the plugin from this repository for your events by enabling it in
+6. Restart your local eventyay-tickets server. You can now use the plugin from this repository for your events by enabling it in
    the 'plugins' tab in the settings.
+
 
 This plugin has CI set up to enforce a few code style rules. To check locally, you need these packages installed::
 
@@ -43,11 +44,10 @@ License
 -------
 
 
-Copyright 2024 Srivatsav Auswin
+Copyright 2024 FOSSASIA
 
 Released under the terms of the Apache License 2.0
 
 
 
-.. _pretix: https://github.com/pretix/pretix
-.. _pretix development setup: https://docs.pretix.eu/en/latest/development/setup.html
+.. _eventyay-tickets: https://github.com/fossasia/eventyay-tickets 
