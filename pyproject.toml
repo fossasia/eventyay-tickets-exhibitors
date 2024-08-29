@@ -7,10 +7,10 @@ requires-python = ">=3.9"
 license = {file = "LICENSE"}
 keywords = ["Eventyay-tickets"]
 authors = [
-    {name = "FOSSASIA", email = "fossasia@googlegroups.com"},
+    {name = "eventyay team", email = "support@eventyay.com"},
 ]
 maintainers = [
-    {name = "FOSSASIA", email = "fossasia@googlegroups.com"},
+    {name = "eventyay team", email = "support@eventyay.com"},
 ]
 
 dependencies = [

@@ -1,0 +1,11 @@
+{% extends "pretixcontrol/event/base.html" %} {% load i18n %} {% load money %}
+{% block title %}{% trans "Badges" %}{% endblock %} {% block content %}
+<h1>{% trans "Eventyay Exhibitor" %}</h1>
+<div class="empty-collection">
+  <p>You haven't added any exhibitors yet.</p>
+
+  <a href="#" class="btn btn-primary btn-lg"
+    ><i class="fa fa-plus"></i> {% trans "Create a new Exhibitor" %}
+  </a>
+</div>
+{% include "pretixcontrol/pagination.html" %} {% endblock %}
