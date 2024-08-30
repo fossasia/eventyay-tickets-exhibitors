@@ -4,7 +4,8 @@
 <div class="empty-collection">
   <p>You haven't added any exhibitors yet.</p>
 
-  <a href="#" class="btn btn-primary btn-lg"
+<a href="{% url "plugins:exhibitors:add" organizer=request.event.organizer.slug event=request.event.slug %}"
+        class="btn btn-primary btn-lg"
     ><i class="fa fa-plus"></i> {% trans "Create a new Exhibitor" %}
   </a>
 </div>
