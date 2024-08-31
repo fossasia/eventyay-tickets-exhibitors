@@ -2,15 +2,15 @@ from django.db import transaction
 from django.utils.functional import cached_property
 from pretix.helpers.models import modelcopy
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
-from django.shortcuts import redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
 from django.utils.translation import gettext, gettext_lazy as _
 from pretix.base.forms import SettingsForm
 from pretix.base.models import Event
 from pretix.control.permissions import EventPermissionRequiredMixin
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from pretix.control.views.event import (
     EventSettingsFormView, EventSettingsViewMixin,
 )
@@ -23,11 +23,24 @@ class SettingsView(EventSettingsViewMixin, EventSettingsFormView):
     template_name = 'exhibitors/settings.html'
     permission = 'can_change_settings'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['exhibitors'] = ExhibitorInfo.objects.filter(event=self.request.event)
+        return context
+
     def get_success_url(self) -> str:
         return reverse('plugins:exhibitors:settings', kwargs={
             'organizer': self.request.event.organizer.slug,
             'event': self.request.event.slug
         })
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        exhibitors = ExhibitorInfo.objects.filter(event=self.request.event)
+        for exhibitor in exhibitors:
+            exhibitor.lead_scanning_enabled = form.cleaned_data.get('lead_scanning_enabled', True)
+            exhibitor.save()
+        return response
 
 
 
@@ -35,7 +48,7 @@ class ExhibitorListView(EventPermissionRequiredMixin, ListView):
     model = ExhibitorInfo
     permission = ('can_change_event_settings', 'can_view_orders')
     template_name = 'exhibitors/exhibitor_info.html'
-    context_object_name = 'layouts'
+    context_object_name = 'exhibitors'
 
     def get_success_url(self) -> str:
         return reverse('plugins:exhibitors:index', kwargs={
@@ -46,34 +59,57 @@ class ExhibitorListView(EventPermissionRequiredMixin, ListView):
 class ExhibitorCreateView(EventPermissionRequiredMixin, CreateView):
     model = ExhibitorInfo
     form_class = ExhibitorInfoForm
-    template_name = 'exhibitors/add.html'
+    template_name = 'exhibitors/exhibitor_form.html'
     permission = 'can_change_event_settings'
-    context_object_name = 'exhibitor'
-    success_url = '/ignored'
-
-    @transaction.atomic
-    def form_valid(self, form):
-        return redirect(reverse('plugins:exhibitor:add', kwargs={
-            'organizer': self.request.event.organizer.slug,
-            'event': self.request.event.slug,
-            'layout': form.instance.pk
-        }))
-
-    def form_invalid(self, form):
-        return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        context['action'] = 'create'
+        return context
 
+    def form_valid(self, form):
+        form.instance.event = self.request.event
+        return super().form_valid(form)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
+    def get_success_url(self):
+        return reverse('plugins:exhibitors:info', kwargs={
+            'organizer': self.request.event.organizer.slug,
+            'event': self.request.event.slug
+        })
 
-        if self.copy_from:
-            i = modelcopy(self.copy_from)
-            i.pk = None
-            i.default = False
-            kwargs['instance'] = i
-            kwargs.setdefault('initial', {})
-        return kwargs
+class ExhibitorEditView(EventPermissionRequiredMixin, UpdateView):
+    model = ExhibitorInfo
+    form_class = ExhibitorInfoForm
+    template_name = 'exhibitors/exhibitor_form.html'
+    permission = 'can_change_event_settings'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['action'] = 'edit'
+        return context
+
+    def get_success_url(self):
+        return reverse('plugins:exhibitors:info', kwargs={
+            'organizer': self.request.event.organizer.slug,
+            'event': self.request.event.slug
+        })
+
+class ExhibitorDeleteView(EventPermissionRequiredMixin, DeleteView):
+    model = ExhibitorInfo
+    template_name = 'exhibitors/delete.html'
+    permission = ('can_change_event_settings',)
+
+    def get_success_url(self) -> str:
+        return reverse('plugins:exhibitors:info', kwargs={
+            'organizer': self.request.event.organizer.slug,
+            'event': self.request.event.slug
+        })
+
+class ExhibitorCopyKeyView(EventPermissionRequiredMixin, View):
+    permission = ('can_change_event_settings',)
+
+    def get(self, request, *args, **kwargs):
+        exhibitor = get_object_or_404(ExhibitorInfo, pk=kwargs['pk'])
+        response = HttpResponse(exhibitor.key)
+        response['Content-Disposition'] = 'attachment; filename="password.txt"'
+        return response

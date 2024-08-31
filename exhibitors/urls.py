@@ -1,13 +1,18 @@
-from django.urls import path, re_path
+from django.urls import re_path as urls
 
-from .views import SettingsView, ExhibitorListView, ExhibitorCreateView
+from .views import SettingsView, ExhibitorListView, ExhibitorCreateView, ExhibitorEditView, ExhibitorDeleteView, ExhibitorCopyKeyView
 
 urlpatterns = [
-    path('control/event/<str:organizer>/<str:event>/settings/exhibitors/',
+    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/settings/exhibitors',
         SettingsView.as_view(), name='settings'),
-    re_path(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/',
+    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors',
         ExhibitorListView.as_view(), name='info'),
-    re_path(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/add$',
+    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/add$',
         ExhibitorCreateView.as_view(), name='add'),
-
+    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/edit/(?P<pk>[^/]+)$',
+         ExhibitorEditView.as_view(), name='edit'),
+    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/delete/(?P<pk>[^/]+)$',
+         ExhibitorDeleteView.as_view(), name='delete'),
+    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/copy_key/(?P<pk>[^/]+)$',
+         ExhibitorCopyKeyView.as_view(), name='copy_key'),
 ]

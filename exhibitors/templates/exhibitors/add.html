@@ -1,17 +1,28 @@
-{% extends "pretixcontrol/event/base.html" %} {% load i18n %} {% load bootstrap3
-%} {% block inside %}
-<h1>{% trans "Eventyay Exhibitors" %}</h1>
-<form
-  action=""
-  method="post"
-  class="form-horizontal"
-  enctype="multipart/form-data"
->
-  <div class="form-group submit-group">
-    <h1 class="text text-primary text-center">This is Exhibitors Settings</h1>
-    <button type="submit" class="btn btn-primary btn-save">
-      {% trans "Save" %}
+{% extends "pretixcontrol/event/base.html" %} {% load i18n %} {% block title %}
+{% if action == 'edit' %} {% trans "Edit Exhibitor" %} {% else %} {% trans "Add
+Exhibitor" %} {% endif %} {% endblock %} {% block content %}
+<h1>
+  {% if action == 'edit' %} {% trans "Edit Exhibitor" %} {% else %} {% trans
+  "Add Exhibitor" %} {% endif %}
+</h1>
+
+<form action="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="panel panel-default">
+    <div class="panel-body">{{ form.as_p }}</div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">
+      {% if action == 'edit' %} {% trans "Save changes" %} {% else %} {% trans
+      "Save" %} {% endif %}
     </button>
+    <a
+      class="btn btn-default"
+      href="{% url 'plugins:exhibitors:info' organizer=request.event.organizer.slug event=request.event.slug %}"
+    >
+      {% trans "Cancel" %}
+    </a>
   </div>
 </form>
 {% endblock %}

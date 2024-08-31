@@ -1,18 +1,27 @@
+from django.db import models
 import string
 import json
-
-from django.db import models
-from django.utils.crypto import get_random_string
+import random
+import os
 from django.utils.translation import gettext_lazy as _
+from pretix.base.models import Event
 
-from pretix.base.models import LoggedModel
+def generate_key():
+    return ''.join(random.choices(
+        string.ascii_lowercase + string.digits, k=8
+    ))
 
-class ExhibitorInfo(LoggedModel):
+def exhibitor_logo_path(instance, filename):
+    return os.path.join('exhibitors', 'logos', instance.name, filename)
+
+
+class ExhibitorInfo(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     name = models.CharField(
         max_length=190,
         verbose_name=_('Name')
     )
-    description = models.TextField( 
+    description = models.TextField(
         verbose_name=_('Description'),
         null=True,
         blank=True
@@ -22,12 +31,23 @@ class ExhibitorInfo(LoggedModel):
         null=True,
         blank=True
     )
-    logo = models.FileField(
-        verbose_name=_('Logo'),
+    email = models.EmailField(
+        verbose_name=_('Email'),
         null=True,
         blank=True
     )
-
+    logo = models.ImageField(
+        upload_to=exhibitor_logo_path,
+        null=True,
+        blank=True
+    )
+    key = models.CharField(
+        max_length=8,
+        default=generate_key,
+    )
+    lead_scanning_enabled = models.BooleanField(
+        default=True
+    )
 
     class Meta:
         ordering = ("name",)

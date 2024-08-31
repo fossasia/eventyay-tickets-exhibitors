@@ -23,6 +23,11 @@ class ExhibitorSettingForm(SettingsForm):
         label=_("Exhibitor Logo"),
         required=False,
     )
+    lead_scanning_enabled = forms.BooleanField(
+        label=_("Lead Scanning Enabled"),
+        required=False,
+        initial=True,
+    )
 
     def __init__(self, *args, **kwargs):
         self.obj = kwargs.get('obj')
@@ -35,4 +40,8 @@ class ExhibitorSettingForm(SettingsForm):
 class ExhibitorInfoForm(forms.ModelForm):
     class Meta:
         model = ExhibitorInfo
-        fields = ['name', 'description', 'logo', 'url']
+        fields = ['name', 'description', 'url', 'email', 'logo']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+        }
+          
