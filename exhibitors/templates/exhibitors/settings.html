@@ -1,51 +1,63 @@
-{% extends "pretixcontrol/event/settings_base.html" %}
+{% extends "pretixcontrol/event/base.html" %}
 {% load i18n %}
 {% block title %}{% trans "Exhibitor Settings" %}{% endblock %}
+
 {% block content %}
     <h1>{% trans "Exhibitor Settings" %}</h1>
 
-    <form action="" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="panel panel-default">
-            <div class="panel-body">
-                {{ form.as_p }}
-            </div>
+    {% if exhibitors %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>{% trans "Exhibitor Name" %}</th>
+                    <th>{% trans "Lead Scanning" %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for exhibitor in exhibitors %}
+                    <tr>
+                        <td>{{ exhibitor.name }}</td>
+                        <td>
+                            <input type="checkbox" class="lead-scanning-checkbox" data-exhibitor-id="{{ exhibitor.id }}" {% if exhibitor.lead_scanning_enabled %}checked{% endif %}>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
+    {% else %}
+        <p>{% trans "No exhibitors have been added." %}</p>
+    {% endif %}
 
-        <h3>{% trans "Exhibitors" %}</h3>
-        {% if exhibitors %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>{% trans "Exhibitor Name" %}</th>
-                            <th>{% trans "Lead Scanning Enabled" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for exhibitor in exhibitors %}
-                            <tr>
-                                <td>{{ exhibitor.name }}</td>
-                                <td>
-                                    <input type="checkbox" name="lead_scanning_enabled_{{ exhibitor.id }}"
-                                           {% if exhibitor.lead_scanning_enabled %}checked{% endif %}>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <p>{% trans "No exhibitors found." %}</p>
-        {% endif %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.lead-scanning-checkbox').forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    const exhibitorId = this.getAttribute('data-exhibitor-id');
+                    const leadScanningEnabled = this.checked;
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
-                {% trans "Save settings" %}
-            </button>
-            <a class="btn btn-default" href="{% url 'control:event.index' organizer=request.event.organizer.slug event=request.event.slug %}">
-                {% trans "Cancel" %}
-            </a>
-        </div>
-    </form>
+                    fetch("{% url 'plugins:exhibitors:settings' organizer=request.event.organizer.slug event=request.event.slug %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({
+                            exhibitor_id: exhibitorId,
+                            lead_scanning_enabled: leadScanningEnabled
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Lead scanning ' + data.status);
+                        } else {
+                            console.error('Error updating lead scanning status');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 {% endblock %}

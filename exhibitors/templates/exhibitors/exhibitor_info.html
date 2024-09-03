@@ -1,6 +1,5 @@
 {% extends "pretixcontrol/event/base.html" %}
 {% load i18n %}
-{% load money %}
 {% block title %}{% trans "Exhibitors" %}{% endblock %}
 {% block content %}
     <h1>{% trans "Exhibitors" %}</h1>
@@ -38,7 +37,7 @@
                     <tr>
                         <td>
                             {% if "can_change_event_settings" in request.eventpermset %}
-                                <strong><a href="{% url "plugins:exhibitors:edit" organizer=request.event.organizer.slug event=request.event.slug layout=l.id %}">
+                                <strong><a href="{% url "plugins:exhibitors:edit" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}">
                                     {{ e.name }}
                                 </a></strong>
                             {% else %}
@@ -48,8 +47,7 @@
                         <td class="text-right flip">
                             {% if "can_change_event_settings" in request.eventpermset %}
                                 <a href="{% url "plugins:exhibitors:edit" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}" class="btn btn-default btn-sm"><i class="fa fa-edit"></i></a>
-                                <a href="{% url "plugins:exhibitors:copy_key" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}?copy_from={{ e.key }}"
-                                        class="btn btn-default btn-sm" title="{% trans "Key" %}" data-toggle="tooltip"><i class="fa fa-copy"></i></a>
+                                <a href="{% url "plugins:exhibitors:copy_key" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}" class="btn btn-default btn-sm" title="{% trans "Key" %}" data-toggle="tooltip"><i class="fa fa-copy"></i></a>
                                 <a href="{% url "plugins:exhibitors:delete" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}" class="btn btn-delete btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                             {% endif %}
                         </td>

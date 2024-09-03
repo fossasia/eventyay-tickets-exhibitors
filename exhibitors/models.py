@@ -54,3 +54,14 @@ class ExhibitorInfo(models.Model):
 
     def __str__(self):
         return self.name
+
+class ExhibitorItem(models.Model):
+    # If no ExhibitorItem exists => use default
+    # If ExhibitorItem exists with layout=None => don't print
+    item = models.OneToOneField('pretixbase.Item', null=True, blank=True, related_name='exhibitor_assignment',
+                                on_delete=models.CASCADE)
+    exhibitor = models.ForeignKey('ExhibitorInfo', on_delete=models.CASCADE, related_name='item_assignments',
+                               null=True, blank=True)
+
+    class Meta:
+        ordering = ('id',)

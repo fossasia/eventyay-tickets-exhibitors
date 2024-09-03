@@ -1,9 +1,19 @@
-{% extends "pretixcontrol/event/base.html" %} {% load i18n %} {% block title %}
-{% if action == 'edit' %} {% trans "Edit Exhibitor" %} {% else %} {% trans "Add
-Exhibitor" %} {% endif %} {% endblock %} {% block content %}
+{% extends "pretixcontrol/event/base.html" %} 
+{% load i18n %} 
+    {% block title %}
+        {% if action == 'edit' %} 
+        {% trans "Edit Exhibitor" %} 
+        {% else %} 
+        {% trans "Add Exhibitor" %} 
+        {% endif %} 
+    {% endblock %} 
+{% block content %}
 <h1>
-  {% if action == 'edit' %} {% trans "Edit Exhibitor" %} {% else %} {% trans
-  "Add Exhibitor" %} {% endif %}
+  {% if action == 'edit' %}
+    {% trans "Edit Exhibitor" %}
+  {% else %}
+    {% trans "Add Exhibitor" %} 
+  {% endif %}
 </h1>
 
 <form action="" method="post" enctype="multipart/form-data">
@@ -14,8 +24,11 @@ Exhibitor" %} {% endif %} {% endblock %} {% block content %}
 
   <div class="form-actions">
     <button type="submit" class="btn btn-primary">
-      {% if action == 'edit' %} {% trans "Save changes" %} {% else %} {% trans
-      "Save" %} {% endif %}
+      {% if action == 'edit' %} 
+            {% trans "Save changes" %} 
+      {% else %}
+            {% trans "Save" %} 
+      {% endif %}
     </button>
     <a
       class="btn btn-default"

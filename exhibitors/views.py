@@ -17,30 +17,22 @@ from pretix.control.views.event import (
 from .models import ExhibitorInfo
 from .forms import ExhibitorSettingForm, ExhibitorInfoForm
 
-class SettingsView(EventSettingsViewMixin, EventSettingsFormView):
-    model = Event
-    form_class = ExhibitorSettingForm
+class SettingsView(EventPermissionRequiredMixin, ListView):
+    model = ExhibitorInfo
     template_name = 'exhibitors/settings.html'
+    context_object_name = 'exhibitors'
     permission = 'can_change_settings'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['exhibitors'] = ExhibitorInfo.objects.filter(event=self.request.event)
-        return context
+    def get_queryset(self):
+        return ExhibitorInfo.objects.filter(event=self.request.event)
 
-    def get_success_url(self) -> str:
-        return reverse('plugins:exhibitors:settings', kwargs={
-            'organizer': self.request.event.organizer.slug,
-            'event': self.request.event.slug
-        })
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        exhibitors = ExhibitorInfo.objects.filter(event=self.request.event)
-        for exhibitor in exhibitors:
-            exhibitor.lead_scanning_enabled = form.cleaned_data.get('lead_scanning_enabled', True)
-            exhibitor.save()
-        return response
+    def post(self, request, *args, **kwargs):
+        exhibitor_id = request.POST.get('exhibitor_id')
+        exhibitor = get_object_or_404(ExhibitorInfo, id=exhibitor_id, event=request.event)
+        lead_scanning_enabled = request.POST.get('lead_scanning_enabled') == 'true'
+        exhibitor.lead_scanning_enabled = lead_scanning_enabled
+        exhibitor.save()
+        return JsonResponse({'success': True, 'status': 'enabled' if lead_scanning_enabled else 'disabled'})
 
 
 
@@ -59,7 +51,7 @@ class ExhibitorListView(EventPermissionRequiredMixin, ListView):
 class ExhibitorCreateView(EventPermissionRequiredMixin, CreateView):
     model = ExhibitorInfo
     form_class = ExhibitorInfoForm
-    template_name = 'exhibitors/exhibitor_form.html'
+    template_name = 'exhibitors/add.html'
     permission = 'can_change_event_settings'
 
     def get_context_data(self, **kwargs):
@@ -80,7 +72,7 @@ class ExhibitorCreateView(EventPermissionRequiredMixin, CreateView):
 class ExhibitorEditView(EventPermissionRequiredMixin, UpdateView):
     model = ExhibitorInfo
     form_class = ExhibitorInfoForm
-    template_name = 'exhibitors/exhibitor_form.html'
+    template_name = 'exhibitors/add.html'
     permission = 'can_change_event_settings'
 
     def get_context_data(self, **kwargs):
