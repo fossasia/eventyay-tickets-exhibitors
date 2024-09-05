@@ -1,7 +1,7 @@
 from django.urls import re_path as urls
 
 from pretix.api.urls import event_router
-from .api import ExhibitorInfoViewSet, ExhibitorItemViewSet
+from .api import ExhibitorInfoViewSet, ExhibitorItemViewSet, ExhibitorAuthView
 
 from .views import SettingsView, ExhibitorListView, ExhibitorCreateView, ExhibitorEditView, ExhibitorDeleteView, ExhibitorCopyKeyView
 
@@ -18,6 +18,8 @@ urlpatterns = [
          ExhibitorDeleteView.as_view(), name='delete'),
     urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/copy_key/(?P<pk>[^/]+)$',
          ExhibitorCopyKeyView.as_view(), name='copy_key'),
+
+    urls(r'^api/v1/exhibitors/auth$', ExhibitorAuthView.as_view(), name='exhibitor-auth'), 
 ]
 
 event_router.register('exhibitors', ExhibitorInfoViewSet, basename='exhibitorinfo')
