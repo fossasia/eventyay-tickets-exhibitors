@@ -1,15 +1,15 @@
-from django.db import models
-import string
-import json
-import random
 import os
+import secrets
+import string
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from pretix.base.models import Event
 
+
 def generate_key():
-    return ''.join(random.choices(
-        string.ascii_lowercase + string.digits, k=8
-    ))
+    alphabet = string.ascii_lowercase + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(8))
+
 
 def exhibitor_logo_path(instance, filename):
     return os.path.join('exhibitors', 'logos', instance.name, filename)
@@ -61,7 +61,7 @@ class ExhibitorItem(models.Model):
     item = models.OneToOneField('pretixbase.Item', null=True, blank=True, related_name='exhibitor_assignment',
                                 on_delete=models.CASCADE)
     exhibitor = models.ForeignKey('ExhibitorInfo', on_delete=models.CASCADE, related_name='item_assignments',
-                               null=True, blank=True)
+                                  null=True, blank=True)
 
     class Meta:
         ordering = ('id',)
