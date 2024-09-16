@@ -25,7 +25,7 @@ def control_nav_import(sender, request=None, **kwargs):
                 'organizer': request.event.organizer.slug,
             }),
             'active': url.namespace == 'plugins:exhibitors',
-            'icon': 'id-card',
+            'icon': 'map-pin',
         }
     ]
 

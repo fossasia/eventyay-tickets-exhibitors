@@ -54,14 +54,15 @@ class ExhibitorCreateView(EventPermissionRequiredMixin, CreateView):
     template_name = 'exhibitors/add.html'
     permission = 'can_change_event_settings'
 
+    def form_valid(self, form):
+        form.instance.event = self.request.event
+        form.instance.lead_scanning_enabled = self.request.POST.get('lead_scanning_enabled') == 'on'
+        return super().form_valid(form)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['action'] = 'create'
         return context
-
-    def form_valid(self, form):
-        form.instance.event = self.request.event
-        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('plugins:exhibitors:info', kwargs={
@@ -74,6 +75,10 @@ class ExhibitorEditView(EventPermissionRequiredMixin, UpdateView):
     form_class = ExhibitorInfoForm
     template_name = 'exhibitors/add.html'
     permission = 'can_change_event_settings'
+
+    def form_valid(self, form):
+        form.instance.lead_scanning_enabled = self.request.POST.get('lead_scanning_enabled') == 'on'
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -46,7 +46,7 @@ class ExhibitorInfo(models.Model):
         default=generate_key,
     )
     lead_scanning_enabled = models.BooleanField(
-        default=True
+        default=False
     )
 
     class Meta:
