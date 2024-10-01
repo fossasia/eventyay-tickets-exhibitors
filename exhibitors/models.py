@@ -1,8 +1,10 @@
 import os
 import secrets
 import string
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from pretix.base.models import Event
 
 

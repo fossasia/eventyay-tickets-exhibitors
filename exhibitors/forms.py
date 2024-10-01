@@ -1,7 +1,9 @@
 from django import forms
-from pretix.base.forms import SettingsForm
 from django.utils.translation import gettext, gettext_lazy as _
+
+from pretix.base.forms import SettingsForm
 from .models import ExhibitorInfo
+
 
 class ExhibitorSettingForm(SettingsForm):
     exhibitor_url = forms.URLField(
@@ -37,6 +39,7 @@ class ExhibitorSettingForm(SettingsForm):
         data = super().clean()
         return data
 
+
 class ExhibitorInfoForm(forms.ModelForm):
     class Meta:
         model = ExhibitorInfo
@@ -44,4 +47,3 @@ class ExhibitorInfoForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
         }
-          

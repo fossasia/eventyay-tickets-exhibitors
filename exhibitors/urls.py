@@ -1,25 +1,48 @@
-from django.urls import re_path as urls
-
+from django.urls import path
 from pretix.api.urls import event_router
-from .api import ExhibitorInfoViewSet, ExhibitorItemViewSet, ExhibitorAuthView
 
-from .views import SettingsView, ExhibitorListView, ExhibitorCreateView, ExhibitorEditView, ExhibitorDeleteView, ExhibitorCopyKeyView
+from .api import ExhibitorInfoViewSet, ExhibitorItemViewSet, ExhibitorAuthView
+from .views import (
+    SettingsView, ExhibitorListView, ExhibitorCreateView,
+    ExhibitorEditView, ExhibitorDeleteView, ExhibitorCopyKeyView
+)
 
 urlpatterns = [
-    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/settings/exhibitors',
-        SettingsView.as_view(), name='settings'),
-    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors$',
-        ExhibitorListView.as_view(), name='info'),
-    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/add$',
-        ExhibitorCreateView.as_view(), name='add'),
-    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/edit/(?P<pk>[^/]+)$',
-         ExhibitorEditView.as_view(), name='edit'),
-    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/delete/(?P<pk>[^/]+)$',
-         ExhibitorDeleteView.as_view(), name='delete'),
-    urls(r'^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/copy_key/(?P<pk>[^/]+)$',
-         ExhibitorCopyKeyView.as_view(), name='copy_key'),
-
-    urls(r'^api/v1/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/exhibitors/auth$', ExhibitorAuthView.as_view(), name='exhibitor-auth'), 
+    path(
+        'control/event/<str:organizer>/<str:event>/settings/exhibitors',
+        SettingsView.as_view(),
+        name='settings'
+    ),
+    path(
+        'control/event/<str:organizer>/<str:event>/exhibitors',
+        ExhibitorListView.as_view(),
+        name='info'
+    ),
+    path(
+        'control/event/<str:organizer>/<str:event>/exhibitors/add',
+        ExhibitorCreateView.as_view(),
+        name='add'
+    ),
+    path(
+        'control/event/<str:organizer>/<str:event>/exhibitors/edit/<int:pk>',
+        ExhibitorEditView.as_view(),
+        name='edit'
+    ),
+    path(
+        'control/event/<str:organizer>/<str:event>/exhibitors/delete/<int:pk>',
+        ExhibitorDeleteView.as_view(),
+        name='delete'
+    ),
+    path(
+        'control/event/<str:organizer>/<str:event>/exhibitors/copy_key/<int:pk>',
+        ExhibitorCopyKeyView.as_view(),
+        name='copy_key'
+    ),
+    path(
+        'api/v1/event/<str:organizer>/<str:event>/exhibitors/auth',
+        ExhibitorAuthView.as_view(),
+        name='exhibitor-auth'
+    ),
 ]
 
 event_router.register('exhibitors', ExhibitorInfoViewSet, basename='exhibitorinfo')

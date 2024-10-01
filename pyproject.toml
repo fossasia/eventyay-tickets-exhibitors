@@ -3,7 +3,7 @@ name = "exhibitors"
 dynamic = ["version"]
 description = "Eventyay-tickets plugin to add and manage exhibitors"
 readme = "README.rst"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = {file = "LICENSE"}
 keywords = ["Eventyay-tickets"]
 authors = [

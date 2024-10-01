@@ -7,9 +7,10 @@ try:
 except ImportError:
     raise RuntimeError("Please use a later version of eventyay-tickets")
 
+
 class ExhibitorApp(PluginConfig):
     default = True
-    name = "exhibitors" 
+    name = "exhibitors"
     verbose_name = _("Exhibitors")
 
     class PretixPluginMeta:

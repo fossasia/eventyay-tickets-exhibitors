@@ -14,12 +14,23 @@ class ExhibitorAuthView(views.APIView):
         key = request.data.get('key')
 
         if not email or not key:
-            return Response({'detail': 'Missing parameters'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'detail': 'Missing parameters'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
             exhibitor = ExhibitorInfo.objects.get(email=email, key=key)
-            return Response({'success': True, 'exhibitor_id': exhibitor.id}, status=status.HTTP_200_OK)
+            return Response(
+                {'success': True, 'exhibitor_id': exhibitor.id},
+                status=status.HTTP_200_OK
+            )
         except ExhibitorInfo.DoesNotExist:
-            return Response({'success': False, 'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {'success': False, 'error': 'Invalid credentials'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
 
 class ExhibitorItemAssignmentSerializer(I18nAwareModelSerializer):
     class Meta:
@@ -37,7 +48,6 @@ class ExhibitorInfoSerializer(I18nAwareModelSerializer):
     class Meta:
         model = ExhibitorInfo
         fields = ('id', 'name', 'description', 'url', 'email', 'logo', 'key', 'lead_scanning_enabled')
-
 
 
 class ExhibitorInfoViewSet(viewsets.ReadOnlyModelViewSet):
