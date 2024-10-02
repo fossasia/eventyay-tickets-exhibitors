@@ -2,13 +2,13 @@ name: Tests
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
     paths-ignore:
-      - 'exhibitors/locale/**'
+      - "exhibitors/locale/**"
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
     paths-ignore:
-      - 'exhibitors/locale/**'
+      - "exhibitors/locale/**"
 
 jobs:
   test:
@@ -28,9 +28,7 @@ jobs:
             ${{ runner.os }}-pip-
       - name: Install system dependencies
         run: sudo apt update && sudo apt install gettext
-      - name: Install pretix
-        run: pip3 install pretix
       - name: Install Dependencies
-        run: pip3 install pytest pytest-django -Ue .
+        run: pip3 install -e ".[dev]" psycopg2-binary
       - name: Run checks
         run: py.test tests

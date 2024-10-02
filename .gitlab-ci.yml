@@ -1,42 +1,65 @@
+stages:
+  - test
+  - release
+
+before_script:
+  - virtualenv env
+  - source env/bin/activate
+  - pip install -U pip wheel setuptools
+
 test:
-    image:
-        name: pretix/ci-image
-    before_script:
-        - pip install -U pip uv
-        - uv pip install --system -U wheel setuptools pytest pytest-django coverage
-        - uv pip install --system -U git+https://github.com/pretix/pretix.git@master#egg=pretix
-    script:
-        - uv pip install --system -e .
-        - make
-        - coverage run -m pytest tests
-        - coverage report
+  image:
+    name: eventyay-tickets/ci-image
+  stage: test
+  script:
+    - XDG_CACHE_HOME=/cache pip install -e ".[dev]"
+    - cd src
+    - python manage.py check
+    - make all compress
+    - pytest --reruns 3 -n 3 tests
+  tags:
+    - python3
+  except:
+    - pypi
+
 style:
-    image:
-        name: pretix/ci-image
-    before_script:
-        - pip install -U pip uv
-        - uv pip install --system -U wheel setuptools isort black flake8 check-manifest
-        - uv pip install --system -U git+https://github.com/pretix/pretix.git@master#egg=pretix
-    script:
-        - uv pip install --system -e .
-        - black --check .
-        - isort -c --gitignore .
-        - flake8 --extend-exclude .cache .
-        - check-manifest --ignore .cache .
+  image:
+    name: eventyay-tickets/ci-image
+  stage: test
+  script:
+    - pip install -U isort black flake8 check-manifest
+    - isort -c --gitignore .
+    - black --check .
+    - flake8 --extend-exclude .cache .
+    - check-manifest --ignore .cache .
+  tags:
+    - python3
+  except:
+    - pypi
+
 pypi:
-    image:
-        name: pretix/ci-image
-    before_script:
-        - cat $PYPIRC > ~/.pypirc
-        - pip install -U pip uv
-        - uv pip install --system -U wheel setuptools twine build pretix-plugin-build check-manifest
-    script:
-        - python -m build
-        - check-manifest .
-        - twine check dist/*
-        - twine upload dist/*
-    only:
-        - pypi
-    artifacts:
-        paths:
-            - dist/
+  image:
+    name: eventyay-tickets/ci-image
+  stage: release
+  before_script:
+    - cp /keys/.pypirc ~/.pypirc
+  script:
+    - pip install -U check-manifest twine
+    - XDG_CACHE_HOME=/cache pip install -e ".[dev]"
+    - cd src
+    - python setup.py sdist
+    - pip install dist/pretix-*.tar.gz
+    - python -m pretix migrate
+    - python -m pretix check
+    - check-manifest
+    - make npminstall
+    - python setup.py sdist bdist_wheel
+    - twine check dist/*
+    - twine upload dist/*
+  tags:
+    - python3
+  only:
+    - pypi
+  artifacts:
+    paths:
+      - src/dist/

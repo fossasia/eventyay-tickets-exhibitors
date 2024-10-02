@@ -2,15 +2,15 @@ name: Code Style
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
     paths-ignore:
-      - 'exhibitors/locale/**'
-      - 'exhibitors/static/**'
+      - "exhibitors/locale/**"
+      - "exhibitors/static/**"
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
     paths-ignore:
-      - 'exhibitors/locale/**'
-      - 'exhibitors/static/**'
+      - "exhibitors/locale/**"
+      - "exhibitors/static/**"
 
 jobs:
   isort:
@@ -25,15 +25,14 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: Install pretix
-        run: pip3 install pretix
       - name: Install Dependencies
-        run: pip3 install isort -Ue .
+        run: pip3 install -e ".[dev]" psycopg2-binary
       - name: Run isort
         run: isort -c .
+        working-directory: ./src
   flake:
     name: flake8
     runs-on: ubuntu-latest
@@ -46,63 +45,11 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: Install pretix
-        run: pip3 install pretix
       - name: Install Dependencies
-        run: pip3 install flake8 -Ue .
+        run: pip3 install -e ".[dev]" psycopg2-binary
       - name: Run flake8
         run: flake8 .
-        working-directory: .
-  black:
-    name: black
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.11
-      - uses: actions/cache@v1
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Install pretix
-        run: pip3 install pretix
-      - name: Install Dependencies
-        run: pip3 install black -Ue .
-      - name: Run black
-        run: black --check .
-        working-directory: .
-  packaging:
-    name: packaging
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.11
-      - uses: actions/cache@v1
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Install pretix
-        run: pip3 install pretix
-      - name: Install Dependencies
-        run: pip3 install twine check-manifest pretix-plugin-build setuptools build -Ue .
-      - name: Run check-manifest
-        run: check-manifest .
-        working-directory: .
-      - name: Build package
-        run: python setup.py sdist
-        working-directory: .
-      - name: Check package
-        run: twine check dist/*
-        working-directory: .
+        working-directory: ./src

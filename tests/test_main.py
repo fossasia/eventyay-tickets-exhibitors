@@ -1,3 +1,7 @@
 def test_empty():
-    # put your first tests here
-    assert 1 + 1 == 2
+    from exhibitor.apps import ExhibitorConfig
+    assert ExhibitorConfig.name == 'exhibitor'
+    assert isinstance(ExhibitorConfig.verbose_name, str)
+    assert isinstance(ExhibitorConfig.description, str)
+    assert isinstance(ExhibitorConfig.version, str)
+    assert ExhibitorConfig.author == 'OpenCraft'
