@@ -1,4 +1,11 @@
 #!/bin/sh
+
+# Check if 'wlc' command is available
+if ! command -v wlc >/dev/null 2>&1; then
+    echo "Error: 'wlc' command not found. Please install it before running this script."
+    exit 1
+fi
+
 COMPONENTS=pretix/pretix-plugin-exhibitors
 DIR=exhibitors/locale
 # Renerates .po files used for translating the plugin
