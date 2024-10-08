@@ -1,5 +1,0 @@
-[plugin]
-package = "Exhibitors"
-modules = [ "exhibitors" ]
-marketplace_name = "Exhibitors"
-

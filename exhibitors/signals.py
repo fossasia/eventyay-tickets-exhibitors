@@ -54,7 +54,7 @@ def navbar_info(sender, request, **kwargs):
 
 @receiver(order_info_top, dispatch_uid="exhibitor_info")
 def w_order_info(sender: Event, request, order: Order, **kwargs):
-    template = get_template('pretix_venueless/exhibitor_info.html')
+    template = get_template('eventyay-tickets-video/exhibitor_info.html')
     ctx = {
         'order': order,
         'event': sender,
