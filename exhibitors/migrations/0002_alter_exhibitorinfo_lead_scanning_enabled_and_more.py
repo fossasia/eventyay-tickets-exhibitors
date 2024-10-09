@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pretixbase', '0005_alter_cachedcombinedticket_id_alter_cachedticket_id_and_more'),
+        ('pretixbase', '0004_create_customer_table'),
         ('exhibitors', '0001_initial'),
     ]
 
