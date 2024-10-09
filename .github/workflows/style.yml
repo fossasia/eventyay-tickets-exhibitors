@@ -39,7 +39,6 @@ jobs:
 
       - name: Run isort
         run: isort --check-only .
-        working-directory: ./src
 
   flake:
     name: flake8
@@ -67,4 +66,3 @@ jobs:
 
       - name: Run flake8
         run: flake8 .
-        working-directory: ./src
