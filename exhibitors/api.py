@@ -98,6 +98,15 @@ class LeadCreateView(views.APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
+        # Check if the lead has already been scanned for this exhibitor
+        if Lead.objects.filter(exhibitor=exhibitor, pseudonymization_id=pseudonymization_id).exists():
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Lead already scanned'
+                },
+                status=status.HTTP_409_CONFLICT
+            )
         # Try to retrieve the attendee's details using the pseudonymization_id
         try:
             order_position = OrderPosition.objects.get(
