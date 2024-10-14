@@ -1,10 +1,10 @@
 from django.urls import path
 from pretix.api.urls import event_router
 
-from .api import ExhibitorInfoViewSet, ExhibitorItemViewSet, ExhibitorAuthView
+from .api import ExhibitorInfoViewSet, ExhibitorItemViewSet, ExhibitorAuthView, LeadCreateView, LeadRetrieveView
 from .views import (
     SettingsView, ExhibitorListView, ExhibitorCreateView,
-    ExhibitorEditView, ExhibitorDeleteView, ExhibitorCopyKeyView
+    ExhibitorEditView, ExhibitorDeleteView, ExhibitorCopyKeyView,
 )
 
 urlpatterns = [
@@ -42,6 +42,16 @@ urlpatterns = [
         'api/v1/event/<str:organizer>/<str:event>/exhibitors/auth',
         ExhibitorAuthView.as_view(),
         name='exhibitor-auth'
+    ),
+    path(
+        'api/v1/event/<str:organizer>/<str:event>/exhibitors/lead/create',
+        LeadCreateView.as_view(),
+        name='lead-create'
+    ),
+    path(
+        'api/v1/event/<str:organizer>/<str:event>/exhibitors/lead/retrieve',
+        LeadRetrieveView.as_view(),
+        name='lead-retrieve'
     ),
 ]
 

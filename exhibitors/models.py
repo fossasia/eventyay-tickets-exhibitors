@@ -67,3 +67,27 @@ class ExhibitorItem(models.Model):
 
     class Meta:
         ordering = ('id',)
+
+
+class Lead(models.Model):
+    exhibitor = models.ForeignKey(
+        ExhibitorInfo,
+        on_delete=models.CASCADE
+    )
+    pseudonymization_id = models.CharField(
+        max_length=190
+    )
+    scanned = models.DateTimeField()
+    scan_type = models.CharField(
+        max_length=50
+    )
+    device_name = models.CharField(
+        max_length=50
+    )
+    attendee = models.JSONField(
+        null=True,
+        blank=True
+    )  # Attendee details stored as JSON
+
+    def __str__(self):
+        return f"Lead scanned by {self.exhibitor.name}"
