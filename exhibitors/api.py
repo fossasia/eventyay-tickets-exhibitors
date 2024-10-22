@@ -12,17 +12,16 @@ from .models import ExhibitorInfo, ExhibitorItem, Lead
 
 class ExhibitorAuthView(views.APIView):
     def post(self, request, *args, **kwargs):
-        email = request.data.get('email')
         key = request.data.get('key')
 
-        if not email or not key:
+        if not key:
             return Response(
                 {'detail': 'Missing parameters'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
-            exhibitor = ExhibitorInfo.objects.get(email=email, key=key)
+            exhibitor = ExhibitorInfo.objects.get(key=key)
             return Response(
                 {'success': True, 'exhibitor_id': exhibitor.id},
                 status=status.HTTP_200_OK
@@ -98,15 +97,6 @@ class LeadCreateView(views.APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        # Check if the lead has already been scanned for this exhibitor
-        if Lead.objects.filter(exhibitor=exhibitor, pseudonymization_id=pseudonymization_id).exists():
-            return Response(
-                {
-                    'success': False,
-                    'error': 'Lead already scanned'
-                },
-                status=status.HTTP_409_CONFLICT
-            )
         # Try to retrieve the attendee's details using the pseudonymization_id
         try:
             order_position = OrderPosition.objects.get(
@@ -123,6 +113,20 @@ class LeadCreateView(views.APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+        # Check if the lead has already been scanned for this exhibitor
+        if Lead.objects.filter(exhibitor=exhibitor, pseudonymization_id=pseudonymization_id).exists():
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Lead already scanned',
+                    'attendee': {
+                        'name': attendee_name,
+                        'email': attendee_email
+                    }
+                },
+                status=status.HTTP_409_CONFLICT
+            )
+
         # Create the lead entry in the database
         lead = Lead.objects.create(
             exhibitor=exhibitor,
@@ -132,14 +136,20 @@ class LeadCreateView(views.APIView):
             device_name=device_name,
             attendee={
                 'name': attendee_name,
-                'email': attendee_email
+                'email': attendee_email,
+                'note': '',
+                'tags': []
             }
         )
 
         return Response(
             {
                 'success': True,
-                'lead_id': lead.id
+                'lead_id': lead.id,
+                'attendee': {
+                    'name': attendee_name,
+                    'email': attendee_email
+                }
             },
             status=status.HTTP_201_CREATED
         )
