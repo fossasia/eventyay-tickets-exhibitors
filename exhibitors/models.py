@@ -91,3 +91,21 @@ class Lead(models.Model):
 
     def __str__(self):
         return f"Lead scanned by {self.exhibitor.name}"
+
+
+class ExhibitorTag(models.Model):
+    exhibitor = models.ForeignKey(
+        ExhibitorInfo,
+        on_delete=models.CASCADE,
+        related_name='tags'
+    )
+    name = models.CharField(max_length=50)
+    use_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('exhibitor', 'name')
+        ordering = ['-use_count', 'name']
+
+    def __str__(self):
+        return f"{self.name} ({self.exhibitor.name})"

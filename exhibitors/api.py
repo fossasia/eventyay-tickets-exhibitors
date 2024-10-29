@@ -7,7 +7,7 @@ from pretix.base.models import OrderPosition
 from pretix.api.serializers.i18n import I18nAwareModelSerializer
 from pretix.api.serializers.order import CompatibleJSONField
 
-from .models import ExhibitorInfo, ExhibitorItem, Lead
+from .models import ExhibitorInfo, ExhibitorItem, Lead, ExhibitorTag
 
 
 class ExhibitorAuthView(views.APIView):
@@ -184,6 +184,84 @@ class LeadRetrieveView(views.APIView):
             {
                 'success': True,
                 'leads': list(leads)
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class TagListView(views.APIView):
+    def get(self, request, organizer, event, *args, **kwargs):
+        key = request.headers.get('Exhibitor')
+        try:
+            exhibitor = ExhibitorInfo.objects.get(key=key)
+            tags = ExhibitorTag.objects.filter(exhibitor=exhibitor)
+            return Response({
+                'success': True,
+                'tags': [tag.name for tag in tags]
+            })
+        except ExhibitorInfo.DoesNotExist:
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Invalid exhibitor key'
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+class LeadUpdateView(views.APIView):
+    def post(self, request, organizer, event, lead_id, *args, **kwargs):
+        key = request.headers.get('Exhibitor')
+        note = request.data.get('note')
+        tags = request.data.get('tags', [])
+
+        try:
+            exhibitor = ExhibitorInfo.objects.get(key=key)
+        except ExhibitorInfo.DoesNotExist:
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Invalid exhibitor key'
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        try:
+            lead = Lead.objects.get(pseudonymization_id=lead_id, exhibitor=exhibitor)
+            print('\n',lead,'\n')
+        except Lead.DoesNotExist:
+            return Response(
+                {
+                    'success': False,
+                    'error': 'Lead not found'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Update lead's attendee info
+        attendee_data = lead.attendee or {}
+        if note is not None:
+            attendee_data['note'] = note
+        if tags is not None:
+            attendee_data['tags'] = tags
+            
+            # Update tag usage counts and create new tags
+            for tag_name in tags:
+                tag, created = ExhibitorTag.objects.get_or_create(
+                    exhibitor=exhibitor,
+                    name=tag_name
+                )
+                if not created:
+                    tag.use_count += 1
+                    tag.save()
+        
+        lead.attendee = attendee_data
+        lead.save()
+        
+        return Response(
+            {
+                'success': True,
+                'lead_id': lead.id,
+                'attendee': lead.attendee
             },
             status=status.HTTP_200_OK
         )
