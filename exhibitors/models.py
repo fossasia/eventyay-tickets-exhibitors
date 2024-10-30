@@ -12,6 +12,10 @@ def generate_key():
     alphabet = string.ascii_lowercase + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(8))
 
+def generate_booth_id():
+    max_id = ExhibitorInfo.objects.all().aggregate(models.Max('booth_id'))['booth_id__max']
+    return 1000 if max_id is None else max_id + 1
+
 
 def exhibitor_logo_path(instance, filename):
     return os.path.join('exhibitors', 'logos', instance.name, filename)
@@ -47,9 +51,21 @@ class ExhibitorInfo(models.Model):
         max_length=8,
         default=generate_key,
     )
+    booth_id = models.IntegerField(
+        unique=True,
+        default=generate_booth_id,
+        editable=False
+    )
+    booth_name = models.CharField(
+        max_length=100,
+        verbose_name=_('BoothName'),
+    )
     lead_scanning_enabled = models.BooleanField(
         default=False
     )
+    allow_voucher_access = models.BooleanField(default=False)
+    allow_lead_access = models.BooleanField(default=False)
+    lead_scanning_scope_by_device = models.BooleanField(default=False)
 
     class Meta:
         ordering = ("name",)
@@ -74,6 +90,9 @@ class Lead(models.Model):
         ExhibitorInfo,
         on_delete=models.CASCADE
     )
+    exhibitor_name = models.CharField(
+        max_length=190
+    )
     pseudonymization_id = models.CharField(
         max_length=190
     )
@@ -88,6 +107,14 @@ class Lead(models.Model):
         null=True,
         blank=True
     )  # Attendee details stored as JSON
+    booth_id = models.IntegerField(
+        unique=True,
+        editable=False
+    )
+    booth_name = models.CharField(
+        max_length=100,
+        verbose_name=_('BoothName'),
+    )
 
     def __str__(self):
         return f"Lead scanned by {self.exhibitor.name}"

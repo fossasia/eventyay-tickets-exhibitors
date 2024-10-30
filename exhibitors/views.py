@@ -14,7 +14,7 @@ from pretix.control.permissions import EventPermissionRequiredMixin
 from pretix.control.views.event import EventSettingsFormView, EventSettingsViewMixin
 from pretix.helpers.models import modelcopy
 
-from .forms import ExhibitorInfoForm, ExhibitorSettingForm
+from .forms import ExhibitorInfoForm
 from .models import ExhibitorInfo
 
 
@@ -85,10 +85,23 @@ class ExhibitorEditView(EventPermissionRequiredMixin, UpdateView):
     template_name = 'exhibitors/add.html'
     permission = 'can_change_event_settings'
 
+    def get_initial(self):
+        # Set initial values for the form
+        initial = super().get_initial()
+        obj = self.get_object()
+        initial['lead_scanning_enabled'] = obj.lead_scanning_enabled
+        return initial
+
     def form_valid(self, form):
-        form.instance.lead_scanning_enabled = (
-            self.request.POST.get('lead_scanning_enabled') == 'on'
-        )
+        # Handle the form submission
+        exhibitor = form.save(commit=False)
+
+        # Update the boolean fields from POST data
+        exhibitor.lead_scanning_enabled = self.request.POST.get('lead_scanning_enabled') == 'on'
+
+        # Save the exhibitor
+        exhibitor.save()
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):

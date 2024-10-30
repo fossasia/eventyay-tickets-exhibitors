@@ -23,7 +23,13 @@ class ExhibitorAuthView(views.APIView):
         try:
             exhibitor = ExhibitorInfo.objects.get(key=key)
             return Response(
-                {'success': True, 'exhibitor_id': exhibitor.id},
+                {
+                    'success': True,
+                    'exhibitor_id': exhibitor.id,
+                    'exhibitor_name': exhibitor.name,
+                    'booth_id': exhibitor.booth_id,
+                    'booth_name': exhibitor.booth_name,
+                },
                 status=status.HTTP_200_OK
             )
         except ExhibitorInfo.DoesNotExist:
@@ -104,6 +110,13 @@ class LeadCreateView(views.APIView):
             )
             attendee_name = order_position.attendee_name
             attendee_email = order_position.attendee_email
+            country = order_position.country
+            company = order_position.company
+            city = order_position.city
+            exhibitor = ExhibitorInfo.objects.get(key=key)
+            exhibitor_name = exhibitor.name
+            booth_id = exhibitor.booth_id
+            booth_name = exhibitor.booth_name
         except OrderPosition.DoesNotExist:
             return Response(
                 {
@@ -130,10 +143,13 @@ class LeadCreateView(views.APIView):
         # Create the lead entry in the database
         lead = Lead.objects.create(
             exhibitor=exhibitor,
+            exhibitor_name=exhibitor_name,
             pseudonymization_id=pseudonymization_id,
             scanned=timezone.now(),
             scan_type=scan_type,
             device_name=device_name,
+            booth_id=booth_id,
+            booth_name=booth_name,
             attendee={
                 'name': attendee_name,
                 'email': attendee_email,
@@ -174,9 +190,12 @@ class LeadRetrieveView(views.APIView):
         leads = Lead.objects.filter(exhibitor=exhibitor).values(
             'id',
             'pseudonymization_id',
+            'exhibitor_name',
             'scanned',
             'scan_type',
             'device_name',
+            'booth_id',
+            'booth_name',
             'attendee'
         )
 
@@ -227,7 +246,6 @@ class LeadUpdateView(views.APIView):
 
         try:
             lead = Lead.objects.get(pseudonymization_id=lead_id, exhibitor=exhibitor)
-            print('\n',lead,'\n')
         except Lead.DoesNotExist:
             return Response(
                 {
@@ -243,7 +261,7 @@ class LeadUpdateView(views.APIView):
             attendee_data['note'] = note
         if tags is not None:
             attendee_data['tags'] = tags
-            
+
             # Update tag usage counts and create new tags
             for tag_name in tags:
                 tag, created = ExhibitorTag.objects.get_or_create(
@@ -253,7 +271,7 @@ class LeadUpdateView(views.APIView):
                 if not created:
                     tag.use_count += 1
                     tag.save()
-        
+
         lead.attendee = attendee_data
         lead.save()
         
