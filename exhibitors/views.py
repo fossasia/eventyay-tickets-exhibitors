@@ -7,11 +7,12 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext, gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
-
 from pretix.base.forms import SettingsForm
 from pretix.base.models import Event
 from pretix.control.permissions import EventPermissionRequiredMixin
-from pretix.control.views.event import EventSettingsFormView, EventSettingsViewMixin
+from pretix.control.views.event import (
+    EventSettingsFormView, EventSettingsViewMixin,
+)
 from pretix.helpers.models import modelcopy
 
 from .forms import ExhibitorInfoForm

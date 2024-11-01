@@ -1,5 +1,6 @@
 from django.db import migrations
 
+
 def populate_booth_ids(apps, schema_editor):
     ExhibitorInfo = apps.get_model('exhibitors', 'ExhibitorInfo')
     starting_id = 1000

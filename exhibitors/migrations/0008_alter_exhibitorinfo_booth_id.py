@@ -1,7 +1,9 @@
 from django.db import migrations, models
 
+
 def generate_booth_id():
     from django.db.models import Max
+
     from exhibitors.models import ExhibitorInfo
     max_id = ExhibitorInfo.objects.all().aggregate(Max('booth_id'))['booth_id__max']
     return 1000 if max_id is None else max_id + 1
