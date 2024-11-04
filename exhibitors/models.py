@@ -2,6 +2,7 @@ import os
 import secrets
 import string
 from django.db import models
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from pretix.base.models import Event
 
@@ -11,13 +12,34 @@ def generate_key():
     return ''.join(secrets.choice(alphabet) for _ in range(8))
 
 def generate_booth_id():
-    max_id = ExhibitorInfo.objects.all().aggregate(models.Max('booth_id'))['booth_id__max']
-    return 1000 if max_id is None else max_id + 1
+    import string
+    import random
+    
+    # Generate a random booth_id if none exists
+    characters = string.ascii_letters + string.digits
+    while True:
+        booth_id = ''.join(random.choices(characters, k=8))  # 8-character random string
+        if not ExhibitorInfo.objects.filter(booth_id=booth_id).exists():
+            return booth_id
 
 
 def exhibitor_logo_path(instance, filename):
     return os.path.join('exhibitors', 'logos', instance.name, filename)
 
+class ExhibitorSettings(models.Model):
+    event = models.ForeignKey('pretixbase.Event', on_delete=models.CASCADE)
+    exhibitors_access_mail_subject = models.CharField(max_length=255)
+    exhibitors_access_mail_body = models.TextField()
+    allowed_fields = models.JSONField(default=list)
+
+    @property
+    def all_allowed_fields(self):
+        """Return all allowed fields, including required default fields"""
+        default_fields = ['attendee_name', 'attendee_email']
+        return list(set(default_fields + self.allowed_fields))
+
+    class Meta:
+        unique_together = ('event',)
 
 class ExhibitorInfo(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
@@ -49,10 +71,11 @@ class ExhibitorInfo(models.Model):
         max_length=8,
         default=generate_key,
     )
-    booth_id = models.IntegerField(
+    booth_id = models.CharField(
+        max_length=100,
         unique=True,
-        default=generate_booth_id,
-        editable=False
+        null=True,
+        blank=True,
     )
     booth_name = models.CharField(
         max_length=100,
@@ -104,10 +127,11 @@ class Lead(models.Model):
     attendee = models.JSONField(
         null=True,
         blank=True
-    )  # Attendee details stored as JSON
-    booth_id = models.IntegerField(
+    ) 
+    booth_id = models.CharField(
+        max_length=100,
         unique=True,
-        editable=False
+        editable=True
     )
     booth_name = models.CharField(
         max_length=100,
@@ -116,7 +140,6 @@ class Lead(models.Model):
 
     def __str__(self):
         return f"Lead scanned by {self.exhibitor.name}"
-
 
 class ExhibitorTag(models.Model):
     exhibitor = models.ForeignKey(

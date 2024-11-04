@@ -6,7 +6,6 @@ from .models import ExhibitorInfo
 
 
 class ExhibitorInfoForm(forms.ModelForm):
-
     allow_voucher_access = forms.BooleanField(required=False)
     allow_lead_access = forms.BooleanField(required=False)
     lead_scanning_scope_by_device = forms.BooleanField(required=False)
@@ -14,6 +13,7 @@ class ExhibitorInfoForm(forms.ModelForm):
         widget=forms.Textarea(attrs={'rows': 10}),
         required=False
     )
+    booth_id = forms.CharField(required=False)
 
     class Meta:
         model = ExhibitorInfo
@@ -23,6 +23,7 @@ class ExhibitorInfoForm(forms.ModelForm):
             'url',
             'email',
             'logo',
+            'booth_id',
             'booth_name',
             'lead_scanning_enabled'
         ]

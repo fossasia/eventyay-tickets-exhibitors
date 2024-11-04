@@ -6,7 +6,7 @@ from pretix.base.models import OrderPosition
 from rest_framework import status, views, viewsets
 from rest_framework.response import Response
 
-from .models import ExhibitorInfo, ExhibitorItem, ExhibitorTag, Lead
+from .models import ExhibitorInfo, ExhibitorItem,ExhibitorSettings , ExhibitorTag, Lead
 
 
 class ExhibitorAuthView(views.APIView):
@@ -74,6 +74,24 @@ class ExhibitorItemViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class LeadCreateView(views.APIView):
+    def get_allowed_attendee_data(self, order_position, settings, exhibitor):
+        """Helper method to get allowed attendee data based on settings"""
+        # Get all allowed fields including defaults
+        allowed_fields = settings.all_allowed_fields
+        print(allowed_fields)
+        print(order_position)
+        attendee_data = {
+            'name': order_position.attendee_name,  # Always included
+            'email': order_position.attendee_email,  # Always included
+            'company': order_position.company if 'attendee_company' in allowed_fields else None,
+            'city': order_position.city if 'attendee_city' in allowed_fields else None,
+            'country': str(order_position.country) if 'attendee_country' in allowed_fields else None,
+            'note': '',
+            'tags': []
+        }
+
+        return {k: v for k, v in attendee_data.items() if v is not None}
+
     def post(self, request, *args, **kwargs):
         # Extract parameters from the request
         pseudonymization_id = request.data.get('lead')
@@ -82,89 +100,77 @@ class LeadCreateView(views.APIView):
         device_name = request.data.get('device_name')
         key = request.headers.get('Exhibitor')
 
-        if not pseudonymization_id or not scanned or not scan_type or not device_name:
+        if not all([pseudonymization_id, scanned, scan_type, device_name]):
             return Response(
-                {
-                    'detail': 'Missing parameters'
-                },
+                {'detail': 'Missing parameters'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Authenticate the exhibitor using the key
+        # Authenticate the exhibitor
         try:
             exhibitor = ExhibitorInfo.objects.get(key=key)
-        except ExhibitorInfo.DoesNotExist:
+            settings = ExhibitorSettings.objects.get(event=exhibitor.event)
+        except (ExhibitorInfo.DoesNotExist, ExhibitorSettings.DoesNotExist):
             return Response(
-                {
-                    'success': False,
-                    'error': 'Invalid exhibitor key'
-                },
+                {'success': False, 'error': 'Invalid exhibitor key'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        # Try to retrieve the attendee's details using the pseudonymization_id
+        # Get attendee details
         try:
             order_position = OrderPosition.objects.get(
                 pseudonymization_id=pseudonymization_id
             )
-            attendee_name = order_position.attendee_name
-            attendee_email = order_position.attendee_email
-            country = order_position.country
-            company = order_position.company
-            city = order_position.city
-            exhibitor = ExhibitorInfo.objects.get(key=key)
-            exhibitor_name = exhibitor.name
-            booth_id = exhibitor.booth_id
-            booth_name = exhibitor.booth_name
         except OrderPosition.DoesNotExist:
             return Response(
-                {
-                    'success': False,
-                    'error': 'Attendee not found'
-                },
+                {'success': False, 'error': 'Attendee not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Check if the lead has already been scanned for this exhibitor
-        if Lead.objects.filter(exhibitor=exhibitor, pseudonymization_id=pseudonymization_id).exists():
+        # Check for duplicate scan
+        if Lead.objects.filter(
+            exhibitor=exhibitor,
+            pseudonymization_id=pseudonymization_id
+        ).exists():
+            attendee_data = self.get_allowed_attendee_data(
+                order_position,
+                settings,
+                exhibitor
+            )
             return Response(
                 {
                     'success': False,
                     'error': 'Lead already scanned',
-                    'attendee': {
-                        'name': attendee_name,
-                        'email': attendee_email
-                    }
+                    'attendee': attendee_data
                 },
                 status=status.HTTP_409_CONFLICT
             )
 
-        # Create the lead entry in the database
+        # Get allowed attendee data based on settings
+        attendee_data = self.get_allowed_attendee_data(
+            order_position,
+            settings,
+            exhibitor
+        )
+        print(attendee_data)
+        # Create the lead entry
         lead = Lead.objects.create(
             exhibitor=exhibitor,
-            exhibitor_name=exhibitor_name,
+            exhibitor_name=exhibitor.name,
             pseudonymization_id=pseudonymization_id,
             scanned=timezone.now(),
             scan_type=scan_type,
             device_name=device_name,
-            booth_id=booth_id,
-            booth_name=booth_name,
-            attendee={
-                'name': attendee_name,
-                'email': attendee_email,
-                'note': '',
-                'tags': []
-            }
+            booth_id=exhibitor.booth_id,
+            booth_name=exhibitor.booth_name,
+            attendee=attendee_data
         )
 
         return Response(
             {
                 'success': True,
                 'lead_id': lead.id,
-                'attendee': {
-                    'name': attendee_name,
-                    'email': attendee_email
-                }
+                'attendee': attendee_data
             },
             status=status.HTTP_201_CREATED
         )
