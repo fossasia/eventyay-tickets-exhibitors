@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pretixbase', '0004_create_customer_table'),
+        ('pretixbase', '0001_initial'),
         ('exhibitors', '0001_initial'),
     ]
 
