@@ -24,7 +24,9 @@ def test_create_exhibitor_info(event):
     assert exhibitor.url == "http://testexhibitor.com"
     assert exhibitor.email == "test@example.com"
 
-    # Dynamically verify the logo file path to avoid hardcoding assumptions
+    # Verify the logo file path dynamically to avoid hardcoding assumptions.
+    # The uploaded logo's filename should include 'test_logo.jpg', but the full path may vary
+    # depending on storage backends or configurations. Using a substring match ensures flexibility.
     assert "test_logo.jpg" in exhibitor.logo.name, "The uploaded logo filename should include 'test_logo.jpg'"
     assert exhibitor.lead_scanning_enabled is True
 
