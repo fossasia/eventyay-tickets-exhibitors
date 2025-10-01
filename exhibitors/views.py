@@ -2,6 +2,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.contrib import messages
 from django.utils.translation import gettext, gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
@@ -14,7 +15,7 @@ from pretix.control.views.event import (
 from pretix.helpers.models import modelcopy
 
 from .forms import ExhibitorInfoForm
-from .models import ExhibitorInfo, ExhibitorSettings
+from .models import ExhibitorInfo, ExhibitorSettings, generate_booth_id
 
 
 class SettingsView(EventPermissionRequiredMixin, ListView):
@@ -31,7 +32,7 @@ class SettingsView(EventPermissionRequiredMixin, ListView):
         return ctx
 
     def post(self, request, *args, **kwargs):
-        settings, _ = ExhibitorSettings.objects.get_or_create(event=self.request.event)
+        settings, created = ExhibitorSettings.objects.get_or_create(event=self.request.event)
         
         # Get selected fields, excluding default fields
         allowed_fields = request.POST.getlist('exhibitors_access_voucher')
@@ -42,7 +43,7 @@ class SettingsView(EventPermissionRequiredMixin, ListView):
         settings.exhibitors_access_mail_body = request.POST.get('exhibitors_access_mail_body', '')
         settings.save()
         
-        messages.success(request, _('Settings have been saved.'))
+        messages.success(self.request, _('Settings have been saved.'))
         return redirect(request.path)
 
 
@@ -51,6 +52,9 @@ class ExhibitorListView(EventPermissionRequiredMixin, ListView):
     permission = ('can_change_event_settings', 'can_view_orders')
     template_name = 'exhibitors/exhibitor_info.html'
     context_object_name = 'exhibitors'
+
+    def get_queryset(self):
+        return ExhibitorInfo.objects.filter(event=self.request.event)
 
     def get_success_url(self) -> str:
         return reverse('plugins:exhibitors:index', kwargs={
