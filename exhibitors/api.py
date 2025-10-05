@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from pretix.api.serializers.i18n import I18nAwareModelSerializer
-from pretix.api.serializers.order import CompatibleJSONField
-from pretix.base.models import OrderPosition
+from eventyay.api.serializers.i18n import I18nAwareModelSerializer
+from eventyay.api.serializers.order import CompatibleJSONField
+from eventyay.base.models import OrderPosition
 from rest_framework import status, views, viewsets
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist

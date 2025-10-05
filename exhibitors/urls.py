@@ -1,5 +1,5 @@
 from django.urls import path
-from pretix.api.urls import event_router
+from eventyay.api.urls import event_router
 
 from .api import (
     ExhibitorAuthView, ExhibitorInfoViewSet, ExhibitorItemViewSet,
