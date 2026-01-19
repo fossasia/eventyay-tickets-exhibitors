@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from pretix.api.serializers.i18n import I18nAwareModelSerializer
-from pretix.api.serializers.order import CompatibleJSONField
-from pretix.base.models import OrderPosition
+from eventyay.api.serializers.i18n import I18nAwareModelSerializer
+from eventyay.api.serializers.order import CompatibleJSONField
+from eventyay.base.models import OrderPosition
 from rest_framework import status, views, viewsets
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
-from .models import ExhibitorInfo, ExhibitorItem,ExhibitorSettings , ExhibitorTag, Lead
+from .models import ExhibitorInfo, ExhibitorSettings , ExhibitorTag, Lead
 
 
 class ExhibitorAuthView(views.APIView):
@@ -38,18 +38,6 @@ class ExhibitorAuthView(views.APIView):
             )
 
 
-class ExhibitorItemAssignmentSerializer(I18nAwareModelSerializer):
-    class Meta:
-        model = ExhibitorItem
-        fields = ('id', 'item', 'exhibitor')
-
-
-class NestedItemAssignmentSerializer(I18nAwareModelSerializer):
-    class Meta:
-        model = ExhibitorItem
-        fields = ('item',)
-
-
 class ExhibitorInfoSerializer(I18nAwareModelSerializer):
     class Meta:
         model = ExhibitorInfo
@@ -64,13 +52,6 @@ class ExhibitorInfoViewSet(viewsets.ReadOnlyModelViewSet):
         return ExhibitorInfo.objects.filter(event=self.request.event)
 
 
-class ExhibitorItemViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = ExhibitorItemAssignmentSerializer
-    queryset = ExhibitorItem.objects.none()
-    lookup_field = 'id'
-
-    def get_queryset(self):
-        return ExhibitorItem.objects.filter(item__event=self.request.event)
 
 
 class LeadCreateView(views.APIView):

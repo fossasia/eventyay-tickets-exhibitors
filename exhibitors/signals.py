@@ -4,12 +4,12 @@ from django.urls import resolve, reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from i18nfield.strings import LazyI18nString
-from pretix.base.models import Event, Order
-from pretix.base.reldate import RelativeDateWrapper
-from pretix.base.settings import settings_hierarkey
-from pretix.base.signals import event_copy_data, item_copy_data
-from pretix.control.signals import nav_event, nav_event_settings
-from pretix.presale.signals import order_info_top, position_info_top
+from eventyay.base.models import Event, Order
+from eventyay.base.reldate import RelativeDateWrapper
+from eventyay.base.settings import settings_hierarkey
+from eventyay.base.signals import event_copy_data
+from eventyay.control.signals import nav_event, nav_event_settings
+from eventyay.presale.signals import order_info_top, position_info_top
 
 
 @receiver(nav_event, dispatch_uid="exhibitors_nav")

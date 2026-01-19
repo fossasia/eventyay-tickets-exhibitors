@@ -6,13 +6,13 @@ from django.contrib import messages
 from django.utils.translation import gettext, gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
-from pretix.base.forms import SettingsForm
-from pretix.base.models import Event
-from pretix.control.permissions import EventPermissionRequiredMixin
-from pretix.control.views.event import (
+from eventyay.base.forms import SettingsForm
+from eventyay.base.models import Event
+from eventyay.control.permissions import EventPermissionRequiredMixin
+from eventyay.control.views.event import (
     EventSettingsFormView, EventSettingsViewMixin,
 )
-from pretix.helpers.models import modelcopy
+from eventyay.helpers.models import modelcopy
 
 from .forms import ExhibitorInfoForm
 from .models import ExhibitorInfo, ExhibitorSettings, generate_booth_id

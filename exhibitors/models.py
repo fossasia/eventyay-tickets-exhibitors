@@ -4,7 +4,7 @@ import string
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from pretix.base.models import Event
+from eventyay.base.models import Event
 
 
 def generate_key():
@@ -27,7 +27,7 @@ def exhibitor_logo_path(instance, filename):
     return os.path.join('exhibitors', 'logos', instance.name, filename)
 
 class ExhibitorSettings(models.Model):
-    event = models.ForeignKey('pretixbase.Event', on_delete=models.CASCADE)
+    event = models.ForeignKey('base.Event', on_delete=models.CASCADE)
     exhibitors_access_mail_subject = models.CharField(max_length=255)
     exhibitors_access_mail_body = models.TextField()
     allowed_fields = models.JSONField(default=list)
@@ -93,18 +93,6 @@ class ExhibitorInfo(models.Model):
 
     def __str__(self):
         return self.name
-
-class ExhibitorItem(models.Model):
-    # If no ExhibitorItem exists => use default
-    # If ExhibitorItem exists with layout=None => don't print
-    item = models.OneToOneField('pretixbase.Item', null=True, blank=True, related_name='exhibitor_assignment',
-                                on_delete=models.CASCADE)
-    exhibitor = models.ForeignKey('ExhibitorInfo', on_delete=models.CASCADE, related_name='item_assignments',
-                                  null=True, blank=True)
-
-    class Meta:
-        ordering = ('id',)
-
 
 class Lead(models.Model):
     exhibitor = models.ForeignKey(
