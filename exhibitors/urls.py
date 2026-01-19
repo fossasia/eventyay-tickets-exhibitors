@@ -2,8 +2,8 @@ from django.urls import path
 from eventyay.api.urls import event_router
 
 from .api import (
-    ExhibitorAuthView, ExhibitorInfoViewSet, 
-    LeadCreateView, LeadRetrieveView, LeadUpdateView, TagListView,
+    ExhibitorAuthView, ExhibitorInfoViewSet, LeadCreateView, LeadRetrieveView,
+    LeadUpdateView, TagListView,
 )
 from .views import (
     ExhibitorCopyKeyView, ExhibitorCreateView, ExhibitorDeleteView,

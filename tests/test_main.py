@@ -1,5 +1,4 @@
 import pytest
-
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from exhibitors.models import ExhibitorInfo
@@ -9,7 +8,7 @@ from exhibitors.models import ExhibitorInfo
 def test_create_exhibitor_info(event):
     # CREATE: Simulate an image upload and create an exhibitor
     logo = SimpleUploadedFile("test_logo.jpg", b"file_content", content_type="image/jpeg")
-    
+
     exhibitor = ExhibitorInfo.objects.create(
         event=event,
         name="Test Exhibitor",
@@ -27,6 +26,7 @@ def test_create_exhibitor_info(event):
     assert exhibitor.email == "test@example.com"
     assert exhibitor.logo.name == "exhibitors/logos/Test Exhibitor/test_logo.jpg"
     assert exhibitor.lead_scanning_enabled is True
+
 
 @pytest.mark.django_db
 def test_read_exhibitor_info(event):
@@ -49,6 +49,7 @@ def test_read_exhibitor_info(event):
     assert exhibitor_from_db.url == "http://testexhibitor.com"
     assert exhibitor_from_db.email == "test@example.com"
     assert exhibitor_from_db.lead_scanning_enabled is True
+
 
 @pytest.mark.django_db
 def test_update_exhibitor_info(event):
@@ -75,6 +76,7 @@ def test_update_exhibitor_info(event):
     assert updated_exhibitor.name == "Updated Exhibitor"
     assert updated_exhibitor.description == "This is an updated description"
     assert updated_exhibitor.lead_scanning_enabled is False
+
 
 @pytest.mark.django_db
 def test_delete_exhibitor_info(event):

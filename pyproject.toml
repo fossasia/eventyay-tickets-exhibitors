@@ -14,7 +14,7 @@ maintainers = [
 ]
 
 dependencies = [
-
+    "flake8>=7.3.0",
 ]
 
 [project.entry-points."pretix.plugin"]
