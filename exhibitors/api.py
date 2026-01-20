@@ -1,12 +1,10 @@
-from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from pretix.api.serializers.i18n import I18nAwareModelSerializer
-from pretix.api.serializers.order import CompatibleJSONField
-from pretix.base.models import OrderPosition
+from eventyay.api.serializers.i18n import I18nAwareModelSerializer
+from eventyay.base.models import OrderPosition
 from rest_framework import status, views, viewsets
 from rest_framework.response import Response
-from django.core.exceptions import ObjectDoesNotExist
-from .models import ExhibitorInfo, ExhibitorItem,ExhibitorSettings , ExhibitorTag, Lead
+
+from .models import ExhibitorInfo, ExhibitorSettings, ExhibitorTag, Lead
 
 
 class ExhibitorAuthView(views.APIView):
@@ -38,18 +36,6 @@ class ExhibitorAuthView(views.APIView):
             )
 
 
-class ExhibitorItemAssignmentSerializer(I18nAwareModelSerializer):
-    class Meta:
-        model = ExhibitorItem
-        fields = ('id', 'item', 'exhibitor')
-
-
-class NestedItemAssignmentSerializer(I18nAwareModelSerializer):
-    class Meta:
-        model = ExhibitorItem
-        fields = ('item',)
-
-
 class ExhibitorInfoSerializer(I18nAwareModelSerializer):
     class Meta:
         model = ExhibitorInfo
@@ -64,15 +50,6 @@ class ExhibitorInfoViewSet(viewsets.ReadOnlyModelViewSet):
         return ExhibitorInfo.objects.filter(event=self.request.event)
 
 
-class ExhibitorItemViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = ExhibitorItemAssignmentSerializer
-    queryset = ExhibitorItem.objects.none()
-    lookup_field = 'id'
-
-    def get_queryset(self):
-        return ExhibitorItem.objects.filter(item__event=self.request.event)
-
-
 class LeadCreateView(views.APIView):
     def get_allowed_attendee_data(self, order_position, settings, exhibitor):
         """Helper method to get allowed attendee data based on settings"""
@@ -81,7 +58,7 @@ class LeadCreateView(views.APIView):
         attendee_data = {
             'name': order_position.attendee_name,  # Always included
             'email': order_position.attendee_email,  # Always included
-            'company': order_position.company, # Always included
+            'company': order_position.company,  # Always included
             'city': order_position.city if 'attendee_city' in allowed_fields else None,
             'country': str(order_position.country) if 'attendee_country' in allowed_fields else None,
             'note': '',
@@ -119,7 +96,7 @@ class LeadCreateView(views.APIView):
         try:
             if open_event:
                 order_position = OrderPosition.objects.get(
-                    secret = pseudonymization_id
+                    secret=pseudonymization_id
                 )
             else:
                 order_position = OrderPosition.objects.get(
@@ -235,6 +212,7 @@ class TagListView(views.APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
+
 class LeadUpdateView(views.APIView):
     def post(self, request, organizer, event, lead_id, *args, **kwargs):
         key = request.headers.get('Exhibitor')
@@ -282,7 +260,7 @@ class LeadUpdateView(views.APIView):
 
         lead.attendee = attendee_data
         lead.save()
-        
+
         return Response(
             {
                 'success': True,

@@ -2,19 +2,19 @@ import os
 import secrets
 import string
 from django.db import models
-from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from pretix.base.models import Event
+from eventyay.base.models import Event
 
 
 def generate_key():
     alphabet = string.ascii_lowercase + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(8))
 
+
 def generate_booth_id():
-    import string
     import random
-    
+    import string
+
     # Generate a random booth_id if none exists
     characters = string.ascii_letters + string.digits
     while True:
@@ -26,8 +26,9 @@ def generate_booth_id():
 def exhibitor_logo_path(instance, filename):
     return os.path.join('exhibitors', 'logos', instance.name, filename)
 
+
 class ExhibitorSettings(models.Model):
-    event = models.ForeignKey('pretixbase.Event', on_delete=models.CASCADE)
+    event = models.ForeignKey('base.Event', on_delete=models.CASCADE)
     exhibitors_access_mail_subject = models.CharField(max_length=255)
     exhibitors_access_mail_body = models.TextField()
     allowed_fields = models.JSONField(default=list)
@@ -40,6 +41,7 @@ class ExhibitorSettings(models.Model):
 
     class Meta:
         unique_together = ('event',)
+
 
 class ExhibitorInfo(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
@@ -94,17 +96,6 @@ class ExhibitorInfo(models.Model):
     def __str__(self):
         return self.name
 
-class ExhibitorItem(models.Model):
-    # If no ExhibitorItem exists => use default
-    # If ExhibitorItem exists with layout=None => don't print
-    item = models.OneToOneField('pretixbase.Item', null=True, blank=True, related_name='exhibitor_assignment',
-                                on_delete=models.CASCADE)
-    exhibitor = models.ForeignKey('ExhibitorInfo', on_delete=models.CASCADE, related_name='item_assignments',
-                                  null=True, blank=True)
-
-    class Meta:
-        ordering = ('id',)
-
 
 class Lead(models.Model):
     exhibitor = models.ForeignKey(
@@ -127,7 +118,7 @@ class Lead(models.Model):
     attendee = models.JSONField(
         null=True,
         blank=True
-    ) 
+    )
     booth_id = models.CharField(
         max_length=100,
         editable=True
@@ -139,6 +130,7 @@ class Lead(models.Model):
 
     def __str__(self):
         return f"Lead scanned by {self.exhibitor.name}"
+
 
 class ExhibitorTag(models.Model):
     exhibitor = models.ForeignKey(

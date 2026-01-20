@@ -1,18 +1,11 @@
-from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponse, JsonResponse
+from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.contrib import messages
-from django.utils.translation import gettext, gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
-from pretix.base.forms import SettingsForm
-from pretix.base.models import Event
-from pretix.control.permissions import EventPermissionRequiredMixin
-from pretix.control.views.event import (
-    EventSettingsFormView, EventSettingsViewMixin,
-)
-from pretix.helpers.models import modelcopy
+from eventyay.control.permissions import EventPermissionRequiredMixin
 
 from .forms import ExhibitorInfoForm
 from .models import ExhibitorInfo, ExhibitorSettings, generate_booth_id
@@ -26,23 +19,23 @@ class SettingsView(EventPermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        settings, _ = ExhibitorSettings.objects.get_or_create(event=self.request.event)
+        settings = ExhibitorSettings.objects.get_or_create(event=self.request.event)[0]
         ctx['settings'] = settings
         ctx['default_fields'] = ['attendee_name', 'attendee_email']
         return ctx
 
     def post(self, request, *args, **kwargs):
-        settings, created = ExhibitorSettings.objects.get_or_create(event=self.request.event)
-        
+        settings = ExhibitorSettings.objects.get_or_create(event=self.request.event)[0]
+
         # Get selected fields, excluding default fields
         allowed_fields = request.POST.getlist('exhibitors_access_voucher')
-        
+
         # Update settings
         settings.allowed_fields = allowed_fields
         settings.exhibitors_access_mail_subject = request.POST.get('exhibitors_access_mail_subject', '')
         settings.exhibitors_access_mail_body = request.POST.get('exhibitors_access_mail_body', '')
         settings.save()
-        
+
         messages.success(self.request, _('Settings have been saved.'))
         return redirect(request.path)
 
@@ -108,11 +101,11 @@ class ExhibitorEditView(EventPermissionRequiredMixin, UpdateView):
     def form_valid(self, form):
         exhibitor = form.save(commit=False)
         exhibitor.lead_scanning_enabled = self.request.POST.get('lead_scanning_enabled') == 'on'
-        
+
         # generate booth_id if none provided and there isn't an existing one
         if not form.cleaned_data.get('booth_id') and not exhibitor.booth_id:
             exhibitor.booth_id = generate_booth_id()
-            
+
         exhibitor.save()
         return super().form_valid(form)
 
