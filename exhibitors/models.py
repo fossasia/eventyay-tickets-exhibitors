@@ -3,6 +3,7 @@ import secrets
 import string
 
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from eventyay.base.models import Event
 from i18nfield.fields import I18nCharField, I18nTextField
@@ -32,7 +33,8 @@ def generate_booth_id(event=None):
 def exhibitor_logo_path(instance, filename):
     name = instance.name
     if isinstance(name, LazyI18nString):
-        locale = instance.event.settings.locale if getattr(instance, 'event_id', None) else None
+        event = getattr(instance, 'event', None)
+        locale = getattr(event, 'locale', None) if event is not None else None
         name = name.localize(locale) if locale else str(name)
     return os.path.join('exhibitors', 'logos', str(name), filename)
 
@@ -102,7 +104,11 @@ class ExhibitorInfo(models.Model):
     class Meta:
         ordering = ("name",)
         constraints = [
-            models.UniqueConstraint(fields=['event', 'booth_id'], name='exhibitorinfo_event_booth_id_uniq'),
+            models.UniqueConstraint(
+                fields=['event', 'booth_id'],
+                condition=Q(booth_id__isnull=False),
+                name='exhibitorinfo_event_booth_id_uniq',
+            ),
         ]
 
     def __str__(self):

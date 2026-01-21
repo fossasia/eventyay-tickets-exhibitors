@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views import View
@@ -65,7 +65,6 @@ class ExhibitorCreateView(EventPermissionRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.event = self.request.event
-        form.instance.lead_scanning_enabled = form.cleaned_data.get('lead_scanning_enabled', False)
 
         # Only generate booth_id if none was provided
         if not form.cleaned_data.get('booth_id'):
@@ -98,17 +97,11 @@ class ExhibitorEditView(EventPermissionRequiredMixin, UpdateView):
         return initial
 
     def form_valid(self, form):
-        exhibitor = form.save(commit=False)
-        exhibitor.lead_scanning_enabled = form.cleaned_data.get('lead_scanning_enabled', False)
-
         # generate booth_id if none provided and there isn't an existing one
-        if not form.cleaned_data.get('booth_id') and not exhibitor.booth_id:
-            exhibitor.booth_id = generate_booth_id(event=self.request.event)
+        if not form.cleaned_data.get('booth_id') and not form.instance.booth_id:
+            form.instance.booth_id = generate_booth_id(event=self.request.event)
 
-        exhibitor.save()
-        form.save_m2m()
-        self.object = exhibitor
-        return redirect(self.get_success_url())
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

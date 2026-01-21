@@ -79,8 +79,12 @@ class ExhibitorInfoForm(I18nModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
-            self.initial.setdefault('lead_scanning_scope_by_device', self.instance.lead_scanning_scope_by_device)
-        description_widget = self.fields.get('description')
-        if description_widget and hasattr(description_widget.widget, 'widgets'):
-            for widget in description_widget.widget.widgets:
+            self.initial['lead_scanning_scope_by_device'] = self.instance.lead_scanning_scope_by_device
+        description_field = self.fields.get('description')
+        if description_field:
+            widget = description_field.widget
+            if isinstance(widget, forms.MultiWidget):
+                for sub_widget in widget.widgets:
+                    sub_widget.attrs.setdefault('rows', 4)
+            else:
                 widget.attrs.setdefault('rows', 4)

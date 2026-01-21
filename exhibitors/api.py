@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils import timezone
 from eventyay.api.serializers.i18n import I18nAwareModelSerializer
 from eventyay.base.models import OrderPosition
@@ -14,6 +15,11 @@ def _localize_i18n_value(value, locale):
     return value
 
 
+def _get_exhibitor_locale(exhibitor):
+    event = getattr(exhibitor, 'event', None)
+    return getattr(event, 'locale', None) or settings.LANGUAGE_CODE
+
+
 class ExhibitorAuthView(views.APIView):
     def post(self, request, *args, **kwargs):
         key = request.data.get('key')
@@ -26,7 +32,7 @@ class ExhibitorAuthView(views.APIView):
 
         try:
             exhibitor = ExhibitorInfo.objects.get(key=key)
-            locale = exhibitor.event.settings.locale
+            locale = _get_exhibitor_locale(exhibitor)
             return Response(
                 {
                     'success': True,
@@ -142,7 +148,7 @@ class LeadCreateView(views.APIView):
             exhibitor
         )
         # Create the lead entry
-        locale = exhibitor.event.settings.locale
+        locale = _get_exhibitor_locale(exhibitor)
         lead = Lead.objects.create(
             exhibitor=exhibitor,
             exhibitor_name=_localize_i18n_value(exhibitor.name, locale),
