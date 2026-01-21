@@ -1,10 +1,23 @@
+from django.conf import settings
 from django.utils import timezone
 from eventyay.api.serializers.i18n import I18nAwareModelSerializer
 from eventyay.base.models import OrderPosition
+from i18nfield.strings import LazyI18nString
 from rest_framework import status, views, viewsets
 from rest_framework.response import Response
 
 from .models import ExhibitorInfo, ExhibitorSettings, ExhibitorTag, Lead
+
+
+def _localize_i18n_value(value, locale):
+    if isinstance(value, LazyI18nString):
+        return value.localize(locale)
+    return value
+
+
+def _get_exhibitor_locale(exhibitor):
+    event = getattr(exhibitor, 'event', None)
+    return getattr(event, 'locale', None) or settings.LANGUAGE_CODE
 
 
 class ExhibitorAuthView(views.APIView):
@@ -19,13 +32,14 @@ class ExhibitorAuthView(views.APIView):
 
         try:
             exhibitor = ExhibitorInfo.objects.get(key=key)
+            locale = _get_exhibitor_locale(exhibitor)
             return Response(
                 {
                     'success': True,
                     'exhibitor_id': exhibitor.id,
-                    'exhibitor_name': exhibitor.name,
+                    'exhibitor_name': _localize_i18n_value(exhibitor.name, locale),
                     'booth_id': exhibitor.booth_id,
-                    'booth_name': exhibitor.booth_name,
+                    'booth_name': _localize_i18n_value(exhibitor.booth_name, locale),
                 },
                 status=status.HTTP_200_OK
             )
@@ -134,15 +148,16 @@ class LeadCreateView(views.APIView):
             exhibitor
         )
         # Create the lead entry
+        locale = _get_exhibitor_locale(exhibitor)
         lead = Lead.objects.create(
             exhibitor=exhibitor,
-            exhibitor_name=exhibitor.name,
+            exhibitor_name=_localize_i18n_value(exhibitor.name, locale),
             pseudonymization_id=pseudonymization_id,
             scanned=timezone.now(),
             scan_type=scan_type,
             device_name=device_name,
             booth_id=exhibitor.booth_id,
-            booth_name=exhibitor.booth_name,
+            booth_name=_localize_i18n_value(exhibitor.booth_name, locale),
             attendee=attendee_data
         )
 

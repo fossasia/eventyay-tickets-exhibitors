@@ -4,8 +4,9 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import DeleteView, ListView
 from eventyay.control.permissions import EventPermissionRequiredMixin
+from eventyay.control.views import CreateView, UpdateView
 
 from .forms import ExhibitorInfoForm
 from .models import ExhibitorInfo, ExhibitorSettings, generate_booth_id
@@ -64,13 +65,10 @@ class ExhibitorCreateView(EventPermissionRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.event = self.request.event
-        form.instance.lead_scanning_enabled = (
-            self.request.POST.get('lead_scanning_enabled') == 'on'
-        )
 
         # Only generate booth_id if none was provided
         if not form.cleaned_data.get('booth_id'):
-            form.instance.booth_id = generate_booth_id()
+            form.instance.booth_id = generate_booth_id(event=self.request.event)
 
         return super().form_valid(form)
 
@@ -99,14 +97,10 @@ class ExhibitorEditView(EventPermissionRequiredMixin, UpdateView):
         return initial
 
     def form_valid(self, form):
-        exhibitor = form.save(commit=False)
-        exhibitor.lead_scanning_enabled = self.request.POST.get('lead_scanning_enabled') == 'on'
-
         # generate booth_id if none provided and there isn't an existing one
-        if not form.cleaned_data.get('booth_id') and not exhibitor.booth_id:
-            exhibitor.booth_id = generate_booth_id()
+        if not form.cleaned_data.get('booth_id') and not form.instance.booth_id:
+            form.instance.booth_id = generate_booth_id(event=self.request.event)
 
-        exhibitor.save()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):

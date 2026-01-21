@@ -3,8 +3,11 @@ import secrets
 import string
 
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from eventyay.base.models import Event
+from i18nfield.fields import I18nCharField, I18nTextField
+from i18nfield.strings import LazyI18nString
 
 
 def generate_key():
@@ -12,7 +15,7 @@ def generate_key():
     return ''.join(secrets.choice(alphabet) for _ in range(8))
 
 
-def generate_booth_id():
+def generate_booth_id(event=None):
     import random
     import string
 
@@ -20,12 +23,20 @@ def generate_booth_id():
     characters = string.ascii_letters + string.digits
     while True:
         booth_id = ''.join(random.choices(characters, k=8))  # 8-character random string
-        if not ExhibitorInfo.objects.filter(booth_id=booth_id).exists():
+        queryset = ExhibitorInfo.objects.filter(booth_id=booth_id)
+        if event is not None:
+            queryset = queryset.filter(event=event)
+        if not queryset.exists():
             return booth_id
 
 
 def exhibitor_logo_path(instance, filename):
-    return os.path.join('exhibitors', 'logos', instance.name, filename)
+    name = instance.name
+    if isinstance(name, LazyI18nString):
+        event = getattr(instance, 'event', None)
+        locale = getattr(event, 'locale', None) if event is not None else None
+        name = name.localize(locale) if locale else str(name)
+    return os.path.join('exhibitors', 'logos', str(name), filename)
 
 
 class ExhibitorSettings(models.Model):
@@ -46,11 +57,11 @@ class ExhibitorSettings(models.Model):
 
 class ExhibitorInfo(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    name = models.CharField(
+    name = I18nCharField(
         max_length=190,
         verbose_name=_('Name')
     )
-    description = models.TextField(
+    description = I18nTextField(
         verbose_name=_('Description'),
         null=True,
         blank=True
@@ -76,13 +87,12 @@ class ExhibitorInfo(models.Model):
     )
     booth_id = models.CharField(
         max_length=100,
-        unique=True,
         null=True,
         blank=True,
     )
-    booth_name = models.CharField(
+    booth_name = I18nCharField(
         max_length=100,
-        verbose_name=_('BoothName'),
+        verbose_name=_('Booth Name'),
     )
     lead_scanning_enabled = models.BooleanField(
         default=False
@@ -93,9 +103,16 @@ class ExhibitorInfo(models.Model):
 
     class Meta:
         ordering = ("name",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['event', 'booth_id'],
+                condition=Q(booth_id__isnull=False),
+                name='exhibitorinfo_event_booth_id_uniq',
+            ),
+        ]
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Lead(models.Model):
@@ -126,7 +143,7 @@ class Lead(models.Model):
     )
     booth_name = models.CharField(
         max_length=100,
-        verbose_name=_('BoothName'),
+        verbose_name=_('Booth Name'),
     )
 
     def __str__(self):
