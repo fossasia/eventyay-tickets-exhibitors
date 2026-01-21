@@ -13,8 +13,8 @@ on:
       - "exhibitors/static/**"
 
 jobs:
-  isort:
-    name: isort
+  ruff:
+    name: ruff
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -36,10 +36,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]" psycopg2-binary
-          pip install isort
+          pip install ruff
 
-      - name: Run isort
-        run: isort --check-only .
+      - name: Run ruff (import sorting)
+        run: ruff check --select I .
 
   flake:
     name: flake8
