@@ -1,5 +1,5 @@
 [project]
-name = "exhibitors"
+name = "eventyay-exhibition"
 dynamic = ["version"]
 description = "Eventyay-tickets plugin to add and manage exhibitors"
 readme = "README.rst"
@@ -30,14 +30,14 @@ requires = [
 ]
 
 [project.urls]
-homepage = "https://github.com/fossasia/eventyay-tickets-exhibitors"
+homepage = "https://github.com/fossasia/eventyay-exhibition"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.dynamic]
-version = {attr = "exhibitors.__version__"}
+version = {attr = "eventyay_exhibition.__version__"}
 
 [tool.setuptools.packages.find]
-include = ["exhibitors*"]
+include = ["eventyay_exhibition*"]
 namespaces = false

@@ -1,7 +1,7 @@
 Exhibitors
 ==========================
 
-This is a plugin for `eventyay-tickets`_. 
+This is a plugin for `eventyay`_. 
 
 This plugin enables to add and control exhibitors in eventyay
 
@@ -10,7 +10,7 @@ Development setup
 
 1. Make sure that you have a working `eventyay-tickets development setup`_.
 
-2. Clone this repository, eg to ``local/exhibitors``.
+2. Clone this repository, eg to ``local/eventyay-exhibition``.
 
 3. Activate the virtual environment you use for eventyay-tickets development.
 

@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.11"
 
 [[package]]
-name = "exhibitors"
+name = "eventyay-exhibition"
 source = { editable = "." }
 dependencies = [
     { name = "flake8" },

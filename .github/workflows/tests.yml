@@ -4,11 +4,11 @@ on:
   push:
     branches: [main, master]
     paths-ignore:
-      - "exhibitors/locale/**"
+      - "eventyay_exhibition/locale/**"
   pull_request:
     branches: [main, master]
     paths-ignore:
-      - "exhibitors/locale/**"
+      - "eventyay_exhibition/locale/**"
 
 jobs:
   test:
@@ -16,7 +16,7 @@ jobs:
     name: Exhibitors Plugin Tests
 
     steps:
-      - name: Checkout exhibitors plugin
+      - name: Checkout eventyay_exhibition plugin
         uses: actions/checkout@v3
 
       - name: Clone eventyay-tickets
@@ -42,7 +42,7 @@ jobs:
           pip install -e ".[dev]"
 
           # Go back to plugin directory and install it
-          cd ../eventyay-tickets-exhibitors
+          cd ../eventyay-exhibition
           pip install -e .
 
       - name: Compile translations

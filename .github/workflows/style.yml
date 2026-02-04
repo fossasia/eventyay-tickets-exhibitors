@@ -4,13 +4,13 @@ on:
   push:
     branches: [main, master]
     paths-ignore:
-      - "exhibitors/locale/**"
-      - "exhibitors/static/**"
+      - "eventyay_exhibition/locale/**"
+      - "eventyay_exhibition/static/**"
   pull_request:
     branches: [main, master]
     paths-ignore:
-      - "exhibitors/locale/**"
-      - "exhibitors/static/**"
+      - "eventyay_exhibition/locale/**"
+      - "eventyay_exhibition/static/**"
 
 jobs:
   ruff:
