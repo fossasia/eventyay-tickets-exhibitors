@@ -10,7 +10,7 @@ except ImportError:
 
 class ExhibitorApp(PluginConfig):
     default = True
-    name = "exhibitors"
+    name = "eventyay_exhibition"
     verbose_name = _("Exhibitors")
 
     class EventyayPluginMeta:
