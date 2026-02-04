@@ -10,7 +10,7 @@ Development setup
 
 1. Make sure that you have a working `eventyay-tickets development setup`_.
 
-2. Clone this repository, eg to ``local/eventyay-exhibition``.
+2. Clone this repository, e.g., to ``local/eventyay-exhibition``.
 
 3. Activate the virtual environment you use for eventyay-tickets development.
 
