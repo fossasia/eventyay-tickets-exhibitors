@@ -4,13 +4,13 @@ on:
   push:
     branches: [main, master]
     paths-ignore:
-      - "exhibitors/locale/**"
-      - "exhibitors/static/**"
+      - "eventyay_exhibition/locale/**"
+      - "eventyay_exhibition/static/**"
   pull_request:
     branches: [main, master]
     paths-ignore:
-      - "exhibitors/locale/**"
-      - "exhibitors/static/**"
+      - "eventyay_exhibition/locale/**"
+      - "eventyay_exhibition/static/**"
 
 jobs:
   ruff:
@@ -19,10 +19,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Cache pip
         uses: actions/cache@v3
@@ -47,10 +47,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Cache pip
         uses: actions/cache@v3

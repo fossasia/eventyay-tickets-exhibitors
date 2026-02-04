@@ -6,8 +6,8 @@ if ! command -v wlc >/dev/null 2>&1; then
     exit 1
 fi
 
-COMPONENTS=pretix/pretix-plugin-exhibitors
-DIR=exhibitors/locale
+COMPONENTS=eventyay/eventyay-exhibition
+DIR=eventyay_exhibition/locale
 # Renerates .po files used for translating the plugin
 set -e
 set -x

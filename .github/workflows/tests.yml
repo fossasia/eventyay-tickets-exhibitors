@@ -4,46 +4,64 @@ on:
   push:
     branches: [main, master]
     paths-ignore:
-      - "exhibitors/locale/**"
+      - "eventyay_exhibition/locale/**"
   pull_request:
     branches: [main, master]
     paths-ignore:
-      - "exhibitors/locale/**"
+      - "eventyay_exhibition/locale/**"
 
 jobs:
   test:
     runs-on: ubuntu-latest
     name: Exhibitors Plugin Tests
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: eventyay-db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
-      - name: Checkout exhibitors plugin
+      - name: Checkout eventyay_exhibition plugin
         uses: actions/checkout@v3
 
-      - name: Clone eventyay-tickets
+      - name: Clone eventyay
         run: |
-          git clone https://github.com/fossasia/eventyay-tickets.git ../eventyay-tickets
+          git clone https://github.com/fossasia/eventyay.git ../eventyay
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
 
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y gettext libjpeg-dev zlib1g-dev libpq-dev
 
       - name: Set up virtual environment
         run: |
-          python -m venv venv
+          uv venv venv
           source venv/bin/activate
-          pip install --upgrade pip
 
-          # Install eventyay-tickets with dev dependencies
-          cd ../eventyay-tickets
-          pip install -e ".[dev]"
+          # Install eventyay-tickets with dev dependencies using uv
+          cd ../eventyay/app
+          uv pip install -e ".[dev]"
 
-          # Go back to plugin directory and install it
-          cd ../eventyay-tickets-exhibitors
-          pip install -e .
+          # Go back to plugin directory and install it with test dependencies
+          cd ../../eventyay-exhibition
+          uv pip install -e ".[test]"
 
       - name: Compile translations
         run: |
@@ -51,6 +69,13 @@ jobs:
           make
 
       - name: Run tests
+        env:
+          EVY_RUNNING_ENVIRONMENT: testing
+          EVY_POSTGRES_HOST: localhost
+          EVY_POSTGRES_PORT: 5432
+          EVY_POSTGRES_USER: postgres
+          EVY_POSTGRES_PASSWORD: postgres
+          EVY_POSTGRES_DB: eventyay-db
         run: |
           source venv/bin/activate
           pytest tests --reruns 3
