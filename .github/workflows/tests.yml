@@ -19,9 +19,9 @@ jobs:
       - name: Checkout eventyay_exhibition plugin
         uses: actions/checkout@v3
 
-      - name: Clone eventyay-tickets
+      - name: Clone eventyay
         run: |
-          git clone https://github.com/fossasia/eventyay-tickets.git ../eventyay-tickets
+          git clone https://github.com/fossasia/eventyay.git ../eventyay
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -38,7 +38,7 @@ jobs:
           pip install --upgrade pip
 
           # Install eventyay-tickets with dev dependencies
-          cd ../eventyay-tickets
+          cd ../eventyay
           pip install -e ".[dev]"
 
           # Go back to plugin directory and install it
