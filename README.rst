@@ -3,7 +3,7 @@ Exhibitors
 
 This is a plugin for `eventyay`_. 
 
-This plugin enables to add and control exhibitors in eventyay
+This plugin enables you to add and control exhibitors in eventyay
 
 Development setup
 -----------------
