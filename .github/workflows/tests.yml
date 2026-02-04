@@ -45,6 +45,8 @@ jobs:
           cd ../../eventyay-exhibition
           pip install -e .
 
+          pip install pytest
+
       - name: Compile translations
         run: |
           source venv/bin/activate
