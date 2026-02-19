@@ -14,6 +14,29 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Exhibitors Plugin Tests
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: eventyay-db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
 
     steps:
       - name: Checkout exhibitors plugin
@@ -51,6 +74,15 @@ jobs:
           make
 
       - name: Run tests
+        env:
+          EVY_RUNNING_ENVIRONMENT: testing
+          EVY_POSTGRES_HOST: localhost
+          EVY_POSTGRES_PORT: 5432
+          EVY_POSTGRES_USER: postgres
+          EVY_POSTGRES_PASSWORD: postgres
+          EVY_POSTGRES_DB: eventyay-db
+          EVY_REDIS_HOST: localhost
+          EVY_REDIS_PORT: 6379
         run: |
           source venv/bin/activate
           pytest tests --reruns 3
