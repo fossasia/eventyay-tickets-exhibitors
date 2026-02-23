@@ -30,7 +30,7 @@ requires = [
 ]
 
 [project.urls]
-homepage = "https://github.com/fossasia/eventyay-tickets-exhibitors"
+homepage = "https://github.com/fossasia/eventyay-exhibition"
 
 [tool.setuptools]
 include-package-data = true
