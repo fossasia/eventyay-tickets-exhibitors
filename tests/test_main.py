@@ -16,7 +16,8 @@ def test_create_exhibitor_info(event):
         url="http://testexhibitor.com",
         email="test@example.com",
         logo=logo,
-        lead_scanning_enabled=True
+        lead_scanning_enabled=True,
+        booth_name="Booth A"
     )
 
     # Verify the exhibitor was created and the fields are correct
@@ -39,7 +40,8 @@ def test_read_exhibitor_info(event):
         url="http://testexhibitor.com",
         email="test@example.com",
         logo=logo,
-        lead_scanning_enabled=True
+        lead_scanning_enabled=True,
+        booth_name="Booth A"
     )
 
     # READ: Fetch the exhibitor from the database and verify fields
@@ -62,7 +64,8 @@ def test_update_exhibitor_info(event):
         url="http://testexhibitor.com",
         email="test@example.com",
         logo=logo,
-        lead_scanning_enabled=True
+        lead_scanning_enabled=True,
+        booth_name="Booth A"
     )
 
     # UPDATE: Modify some fields and save the changes
@@ -89,7 +92,8 @@ def test_delete_exhibitor_info(event):
         url="http://testexhibitor.com",
         email="test@example.com",
         logo=logo,
-        lead_scanning_enabled=True
+        lead_scanning_enabled=True,
+        booth_name="Booth A"
     )
 
     # DELETE: Delete the exhibitor and verify it no longer exists
