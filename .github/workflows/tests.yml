@@ -67,13 +67,15 @@ jobs:
           pip install -e ".[dev]"
 
           # Go back to plugin directory and install it
-          cd ../eventyay-exhibition
+          cd $GITHUB_WORKSPACE
           pip install -e .
 
           # Install test dependencies
           pip install pytest-rerunfailures
 
       - name: Compile translations
+        env:
+          DJANGO_SETTINGS_MODULE: eventyay.testutils.settings
         run: |
           source venv/bin/activate
           make
