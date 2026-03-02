@@ -9,33 +9,29 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
-      - name: Cache pip
-        uses: actions/cache@v3
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          enable-cache: true
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install wheel setuptools twine check-manifest
-          XDG_CACHE_HOME=/cache pip install -e ".[dev]"
+          uv sync
+          uv pip install build twine check-manifest
 
       - name: Check manifest
-        run: check-manifest
+        run: uv run check-manifest
 
       - name: Build package
         run: |
-          python setup.py sdist bdist_wheel
+          uv run python -m build
           ls -l dist
 
       - name: Upload to PyPI
@@ -43,8 +39,8 @@ jobs:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
-          twine check dist/*
-          twine upload dist/*
+          uv run twine check dist/*
+          uv run twine upload dist/*
 
     artifacts:
       paths:

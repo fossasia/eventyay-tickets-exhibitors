@@ -4,11 +4,11 @@ on:
   push:
     branches: [main, master]
     paths-ignore:
-      - "eventyay_exhibition/locale/**"
+      - "exhibition/locale/**"
   pull_request:
     branches: [main, master]
     paths-ignore:
-      - "eventyay_exhibition/locale/**"
+      - "exhibition/locale/**"
 
 jobs:
   test:
@@ -31,41 +31,35 @@ jobs:
 
     steps:
       - name: Checkout eventyay_exhibition plugin
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Clone eventyay
         run: |
           git clone https://github.com/fossasia/eventyay.git ../eventyay
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
 
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y gettext libjpeg-dev zlib1g-dev libpq-dev
 
-      - name: Set up virtual environment
+      - name: Set up eventyay environment
         run: |
-          uv venv venv
-          source venv/bin/activate
-
-          # Install eventyay-tickets with dev dependencies using uv
           cd ../eventyay/app
-          uv pip install -e ".[dev]"
+          uv sync --all-extras --all-groups
 
-          # Go back to plugin directory and install it with test dependencies
-          cd ../../eventyay-exhibition
-          uv pip install -e ".[test]"
+          # Install exhibition plugin in the eventyay environment
+          uv pip install -e ../../eventyay-exhibition
 
       - name: Compile translations
         run: |
-          source venv/bin/activate
           make
 
       - name: Run tests
@@ -77,5 +71,5 @@ jobs:
           EVY_POSTGRES_PASSWORD: postgres
           EVY_POSTGRES_DB: eventyay-db
         run: |
-          source venv/bin/activate
-          pytest tests --reruns 3
+          cd ../eventyay/app
+          uv run pytest ../../eventyay-exhibition/tests --reruns 3
