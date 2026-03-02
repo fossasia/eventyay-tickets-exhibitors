@@ -1,9 +1,9 @@
 [project]
-name = "exhibitors"
+name = "eventyay-exhibition"
 dynamic = ["version"]
 description = "Eventyay-tickets plugin to add and manage exhibitors"
 readme = "README.rst"
-requires-python = ">=3.11"
+requires-python = ">=3.12, <3.13"
 license = {file = "LICENSE"}
 keywords = ["Eventyay-tickets"]
 authors = [
@@ -17,8 +17,16 @@ dependencies = [
     "flake8>=7.3.0",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest>=9.0.2",
+    "pytest-django>=4.9.0",
+    "pytest-env>=1.2.0",
+    "pytest-rerunfailures>=16.1",
+]
+
 [project.entry-points."pretix.plugin"]
-exhibitors = "exhibitors:PretixPluginMeta"
+eventyay_exhibition = "eventyay_exhibition.apps:ExhibitorApp"
 
 [project.entry-points."distutils.commands"]
 build = "pretix_plugin_build.build:CustomBuild"
@@ -30,14 +38,14 @@ requires = [
 ]
 
 [project.urls]
-homepage = "https://github.com/fossasia/eventyay-tickets-exhibitors"
+homepage = "https://github.com/fossasia/eventyay-exhibition"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.dynamic]
-version = {attr = "exhibitors.__version__"}
+version = {attr = "eventyay_exhibition.__version__"}
 
 [tool.setuptools.packages.find]
-include = ["exhibitors*"]
+include = ["eventyay_exhibition*"]
 namespaces = false

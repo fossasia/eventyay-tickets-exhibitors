@@ -1,10 +1,11 @@
 import pytest
 from django.utils.timezone import now
-from pretix.base.models import Event, Organizer
+from eventyay.base.models import Event, Organizer
 
 
 @pytest.fixture
 def event(db):
+    """Create a test event with an organizer."""
     organizer = Organizer.objects.create(name="Test Organizer", slug="test-organizer")
     event = Event.objects.create(
         organizer=organizer,
