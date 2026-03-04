@@ -12,7 +12,7 @@
             </p>
 
             {% if "can_change_event_settings" in request.eventpermset %}
-                <a href="{% url "plugins:exhibitors:add" organizer=request.event.organizer.slug event=request.event.slug %}"
+                <a href="{% url "plugins:exhibition:add" organizer=request.event.organizer.slug event=request.event.slug %}"
                         class="btn btn-primary btn-lg"><i class="fa fa-plus"></i> {% trans "Add Exhibitor" %}
                 </a>
             {% endif %}
@@ -20,7 +20,7 @@
     {% else %}
         <p>
             {% if "can_change_event_settings" in request.eventpermset %}
-                <a href="{% url "plugins:exhibitors:add" organizer=request.event.organizer.slug event=request.event.slug %}" class="btn btn-default"><i class="fa fa-plus"></i> {% trans "Add Exhibitor" %}
+                <a href="{% url "plugins:exhibition:add" organizer=request.event.organizer.slug event=request.event.slug %}" class="btn btn-default"><i class="fa fa-plus"></i> {% trans "Add Exhibitor" %}
                 </a>
             {% endif %}
         </p>
@@ -37,7 +37,7 @@
                     <tr>
                         <td>
                             {% if "can_change_event_settings" in request.eventpermset %}
-                                <strong><a href="{% url "plugins:exhibitors:edit" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}">
+                                <strong><a href="{% url "plugins:exhibition:edit" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}">
                                     {{ e.name }}
                                 </a></strong>
                             {% else %}
@@ -46,9 +46,9 @@
                         </td>
                         <td class="text-right flip">
                             {% if "can_change_event_settings" in request.eventpermset %}
-                                <a href="{% url "plugins:exhibitors:edit" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}" class="btn btn-default btn-sm"><i class="fa fa-edit"></i></a>
-                                <a href="{% url "plugins:exhibitors:copy_key" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}" class="btn btn-default btn-sm" title="{% trans "Key" %}" data-toggle="tooltip"><i class="fa fa-copy"></i></a>
-                                <a href="{% url "plugins:exhibitors:delete" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}" class="btn btn-delete btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                                <a href="{% url "plugins:exhibition:edit" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}" class="btn btn-default btn-sm"><i class="fa fa-edit"></i></a>
+                                <a href="{% url "plugins:exhibition:copy_key" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}" class="btn btn-default btn-sm" title="{% trans "Key" %}" data-toggle="tooltip"><i class="fa fa-copy"></i></a>
+                                <a href="{% url "plugins:exhibition:delete" organizer=request.event.organizer.slug event=request.event.slug pk=e.id %}" class="btn btn-delete btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                             {% endif %}
                         </td>
                     </tr>
