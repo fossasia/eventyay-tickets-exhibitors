@@ -14,7 +14,7 @@ Development setup
 
 3. Activate the [virtual environment](https://github.com/fossasia/eventyay?tab=readme-ov-file#getting-started) you use for eventyay development.
 
-4. Execute ``uv pip install -e .`` within this directory to register this application with eventyay-tickets plugin registry.
+4. Execute ``uv pip install -e .`` within this directory to register this application with the eventyay plugin registry.
 
 5. Execute ``make`` within this directory to compile translations.
 
