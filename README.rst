@@ -12,7 +12,7 @@ Development setup
 
 2. Clone this repository, e.g., to ``local/eventyay-exhibition``.
 
-3. Activate the [virtual environment](https://github.com/fossasia/eventyay?tab=readme-ov-file#getting-started) you use for eventyay development.
+3. Activate the `virtual environment <https://github.com/fossasia/eventyay?tab=readme-ov-file#getting-started>`_ you use for eventyay development.
 
 4. Execute ``uv pip install -e .`` within this directory to register this application with the eventyay plugin registry.
 
