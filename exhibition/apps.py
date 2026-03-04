@@ -8,13 +8,13 @@ except ImportError:
     raise RuntimeError("Please use a later version of eventyay-tickets")
 
 
-class ExhibitorApp(PluginConfig):
+class ExhibitionApp(PluginConfig):
     default = True
-    name = "eventyay_exhibition"
-    verbose_name = _("Exhibitors")
+    name = "exhibition"
+    verbose_name = _("Exhibition")
 
     class EventyayPluginMeta:
-        name = _("Exhibitors")
+        name = _("Exhibition")
         author = "FOSSASIA"
         description = _("This plugin enables to add and control exhibitors in eventyay")
         visible = True

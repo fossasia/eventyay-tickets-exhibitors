@@ -1,4 +1,4 @@
-Exhibitors
+Exhibition
 ==========================
 
 This is a plugin for `eventyay`_. 
@@ -8,17 +8,17 @@ This plugin enables you to add and control exhibitors in eventyay
 Development setup
 -----------------
 
-1. Make sure that you have a working `eventyay-tickets development setup`_.
+1. Make sure that you have a working `eventyay development setup`_.
 
 2. Clone this repository, e.g., to ``local/eventyay-exhibition``.
 
-3. Activate the virtual environment you use for eventyay-tickets development.
+3. Activate the `virtual environment <https://github.com/fossasia/eventyay?tab=readme-ov-file#getting-started>`_ you use for eventyay development.
 
-4. Execute ``pip install -e .`` within this directory to register this application with eventyay-tickets plugin registry.
+4. Execute ``uv pip install -e .`` within this directory to register this application with the eventyay plugin registry.
 
 5. Execute ``make`` within this directory to compile translations.
 
-6. Restart your local eventyay-tickets server. You can now use the plugin from this repository for your events by enabling it in
+6. Restart your local eventyay server. You can now use the plugin from this repository for your events by enabling it in
    the 'plugins' tab in the settings.
 
 

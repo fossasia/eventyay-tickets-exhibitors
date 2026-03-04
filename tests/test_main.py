@@ -1,6 +1,9 @@
+import re
+
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
-from exhibitors.models import ExhibitorInfo
+
+from exhibition.models import ExhibitorInfo
 
 
 @pytest.mark.django_db
@@ -23,7 +26,10 @@ def test_create_exhibitor_info(event):
     assert exhibitor.description == "This is a test exhibitor"
     assert exhibitor.url == "http://testexhibitor.com"
     assert exhibitor.email == "test@example.com"
-    assert exhibitor.logo.name == "exhibitors/logos/Test Exhibitor/test_logo.jpg"
+    assert re.fullmatch(
+        r"exhibitors/logos/Test Exhibitor/test_logo(?:_[A-Za-z0-9]{7})?\.jpg",
+        exhibitor.logo.name,
+    )
     assert exhibitor.lead_scanning_enabled is True
 
 

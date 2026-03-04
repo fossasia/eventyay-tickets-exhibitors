@@ -34,6 +34,12 @@ jobs:
           uv run python -m build
           ls -l dist
 
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
       - name: Upload to PyPI
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
@@ -41,7 +47,3 @@ jobs:
         run: |
           uv run twine check dist/*
           uv run twine upload dist/*
-
-    artifacts:
-      paths:
-        - dist/

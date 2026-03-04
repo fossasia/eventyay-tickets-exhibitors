@@ -51,7 +51,7 @@ class ExhibitorListView(EventPermissionRequiredMixin, ListView):
         return ExhibitorInfo.objects.filter(event=self.request.event)
 
     def get_success_url(self) -> str:
-        return reverse('plugins:exhibitors:index', kwargs={
+        return reverse('plugins:exhibition:index', kwargs={
             'organizer': self.request.event.organizer.slug,
             'event': self.request.event.slug
         })
@@ -78,7 +78,7 @@ class ExhibitorCreateView(EventPermissionRequiredMixin, CreateView):
         return context
 
     def get_success_url(self):
-        return reverse('plugins:exhibitors:info', kwargs={
+        return reverse('plugins:exhibition:info', kwargs={
             'organizer': self.request.event.organizer.slug,
             'event': self.request.event.slug
         })
@@ -109,7 +109,7 @@ class ExhibitorEditView(EventPermissionRequiredMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        return reverse('plugins:exhibitors:info', kwargs={
+        return reverse('plugins:exhibition:info', kwargs={
             'organizer': self.request.event.organizer.slug,
             'event': self.request.event.slug
         })
@@ -121,7 +121,7 @@ class ExhibitorDeleteView(EventPermissionRequiredMixin, DeleteView):
     permission = ('can_change_event_settings',)
 
     def get_success_url(self) -> str:
-        return reverse('plugins:exhibitors:info', kwargs={
+        return reverse('plugins:exhibition:info', kwargs={
             'organizer': self.request.event.organizer.slug,
             'event': self.request.event.slug
         })

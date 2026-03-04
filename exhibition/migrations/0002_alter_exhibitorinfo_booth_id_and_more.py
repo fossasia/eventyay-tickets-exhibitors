@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('base', '0007_alter_event_locale_alter_question_hidden_and_more'),
-        ('exhibitors', '0001_initial'),
+        ('exhibition', '0001_initial'),
     ]
 
     operations = [
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             constraint=models.UniqueConstraint(
                 fields=('event', 'booth_id'),
                 condition=Q(booth_id__isnull=False),
-                name='exhibitorinfo_event_booth_id_uniq',
+                name='exhibition_event_booth_id_uniq',
             ),
         ),
     ]

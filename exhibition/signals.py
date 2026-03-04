@@ -11,13 +11,13 @@ def control_nav_import(sender, request=None, **kwargs):
         {
             'label': _('Exhibitors'),
             'url': reverse(
-                'plugins:exhibitors:info',
+                'plugins:exhibition:info',
                 kwargs={
                     'event': request.event.slug,
                     'organizer': request.event.organizer.slug,
                 }
             ),
-            'active': url.namespace == 'plugins:exhibitors' and url.url_name != 'settings',
+            'active': url.namespace == 'plugins:exhibition' and url.url_name != 'settings',
             'icon': 'map-pin',
         }
     ]
@@ -33,7 +33,7 @@ def navbar_info(sender, request, **kwargs):
     return [{
         'label': 'Exhibitors',
         'url': reverse(
-            'plugins:exhibitors:settings',
+            'plugins:exhibition:settings',
             kwargs={
                 'event': request.event.slug,
                 'organizer': request.organizer.slug,
