@@ -1,5 +1,6 @@
-import pytest
 import re
+
+import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from exhibition.models import ExhibitorInfo
