@@ -62,7 +62,7 @@
             {% endif %}
         </button>
         <a class="btn btn-default btn-lg"
-           href="{% url 'plugins:exhibitors:info' organizer=request.event.organizer.slug event=request.event.slug %}">
+           href="{% url 'plugins:exhibition:info' organizer=request.event.organizer.slug event=request.event.slug %}">
             {% trans "Cancel" %}
         </a>
     </div>
