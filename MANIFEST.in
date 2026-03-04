@@ -1,5 +1,5 @@
-recursive-include eventyay_exhibition/static *
-recursive-include eventyay_exhibition/templates *
-recursive-include eventyay_exhibition/locale *
+recursive-include exhibition/static *
+recursive-include exhibition/templates *
+recursive-include exhibition/locale *
 include LICENSE
 exclude .gitlab-ci.yml

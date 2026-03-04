@@ -107,7 +107,7 @@ class ExhibitorInfo(models.Model):
             models.UniqueConstraint(
                 fields=['event', 'booth_id'],
                 condition=Q(booth_id__isnull=False),
-                name='exhibitorinfo_event_booth_id_uniq',
+                name='exhibition_event_booth_id_uniq',
             ),
         ]
 

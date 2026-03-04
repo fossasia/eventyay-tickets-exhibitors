@@ -1,6 +1,7 @@
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
-from exhibitors.models import ExhibitorInfo
+
+from exhibition.models import ExhibitorInfo
 
 
 @pytest.mark.django_db
