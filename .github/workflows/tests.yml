@@ -28,6 +28,15 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+    redis:
+      image: redis:7-alpine
+      options: >-
+        --health-cmd "redis-cli ping"
+        --health-interval 10s
+        --health-timeout 5s
+        --health-retries 5
+      ports:
+        - 6379:6379
 
     steps:
       - name: Checkout eventyay_exhibition plugin
@@ -54,12 +63,12 @@ jobs:
         run: |
           cd ../eventyay/app
           uv sync --all-extras --all-groups
-
           # Install exhibition plugin in the eventyay environment
           uv pip install -e ../../eventyay-exhibition
 
       - name: Compile translations
         run: |
+          . ../eventyay/app/.venv/bin/activate
           make
 
       - name: Run tests
@@ -71,5 +80,5 @@ jobs:
           EVY_POSTGRES_PASSWORD: postgres
           EVY_POSTGRES_DB: eventyay-db
         run: |
-          cd ../eventyay/app
-          uv run pytest ../../eventyay-exhibition/tests --reruns 3
+          . ../eventyay/app/.venv/bin/activate
+          pytest tests --reruns 3
