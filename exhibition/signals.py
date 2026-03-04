@@ -17,7 +17,7 @@ def control_nav_import(sender, request=None, **kwargs):
                     'organizer': request.event.organizer.slug,
                 }
             ),
-            'active': url.namespace == 'plugins:exhibitors' and url.url_name != 'settings',
+            'active': url.namespace == 'plugins:exhibition' and url.url_name != 'settings',
             'icon': 'map-pin',
         }
     ]
