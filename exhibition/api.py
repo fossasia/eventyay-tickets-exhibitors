@@ -84,13 +84,21 @@ class LeadCreateView(views.APIView):
     def post(self, request, *args, **kwargs):
         # Extract parameters from the request
         pseudonymization_id = request.data.get('lead')
-        scanned = request.data.get('scanned')
+        # 'scanned' is intentionally excluded from client input.
+        # Scan time is determined server-side via timezone.now() to prevent client-side manipulation.
         scan_type = request.data.get('scan_type')
         device_name = request.data.get('device_name')
-        open_event = request.data.get('open_event')
+        # Normalize open_event to a proper boolean.
+        # String values like "false" or "0" from non-JSON requests are handled explicitly.
+        raw_open_event = request.data.get('open_event', False)
+
+        if isinstance(raw_open_event, str):
+            open_event = raw_open_event.lower() not in ('false', '0', '', 'no')
+        else:
+            open_event = bool(raw_open_event)
         key = request.headers.get('Exhibitor')
 
-        if not all([pseudonymization_id, scanned, scan_type, device_name]):
+        if not all([pseudonymization_id, scan_type, device_name]):
             return Response(
                 {'detail': 'Missing parameters'},
                 status=status.HTTP_400_BAD_REQUEST

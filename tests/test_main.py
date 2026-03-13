@@ -3,6 +3,9 @@ import re
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from django.utils import timezone
+from exhibition.models import Lead
+
 from exhibition.models import ExhibitorInfo
 
 
@@ -103,3 +106,43 @@ def test_delete_exhibitor_info(event):
 
     with pytest.raises(ExhibitorInfo.DoesNotExist):
         ExhibitorInfo.objects.get(id=exhibitor_id)
+
+
+@pytest.mark.django_db
+def test_lead_create_scanned_is_server_time(api_client, exhibitor, order_position):
+    # 'scanned' value sent by client should be ignored.
+    # Server must always set scan time via timezone.now().
+    before = timezone.now()
+    response = api_client.post(
+        '/api/leads/',
+        data={
+            'lead': order_position.pseudonymization_id,
+            'scan_type': 'qr',
+            'device_name': 'test_device',
+            'scanned': '2000-01-01T00:00:00Z',  # 과거 시간 보내도 무시되어야 함
+        },
+        HTTP_EXHIBITOR=exhibitor.key
+    )
+    after = timezone.now()
+
+    assert response.status_code == 201
+    lead = Lead.objects.get(id=response.data['lead_id'])
+    assert before <= lead.scanned <= after  # 서버 시간으로 저장됐는지 확인
+
+
+@pytest.mark.django_db
+def test_lead_create_open_event_string_false(api_client, exhibitor, order_position):
+    # String "false" must be treated as boolean False.
+    response = api_client.post(
+        '/api/leads/',
+        data={
+            'lead': order_position.secret,
+            'scan_type': 'qr',
+            'device_name': 'test_device',
+            'open_event': 'false',  # 문자열로 보내도 False 처리되어야 함
+        },
+        HTTP_EXHIBITOR=exhibitor.key
+    )
+    # open_event=False면 pseudonymization_id로 조회해야 함
+    # secret으로 보냈으니 404가 맞음 (잘못된 lookup)
+    assert response.status_code == 404
