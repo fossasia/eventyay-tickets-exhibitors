@@ -19,6 +19,13 @@ def _get_exhibitor_locale(exhibitor):
     event = getattr(exhibitor, 'event', None)
     return getattr(event, 'locale', None) or settings.LANGUAGE_CODE
 
+def _parse_boolean(value, default=False):
+    """Normalize various input types to a proper boolean.
+    Handles string values like 'false', '0', 'no' from non-JSON requests.
+    """
+    if isinstance(value, str):
+        return value.lower() not in ('false', '0', '', 'no')
+    return bool(value) if value is not None else default
 
 class ExhibitorAuthView(views.APIView):
     def post(self, request, *args, **kwargs):
@@ -84,13 +91,23 @@ class LeadCreateView(views.APIView):
     def post(self, request, *args, **kwargs):
         # Extract parameters from the request
         pseudonymization_id = request.data.get('lead')
-        scanned = request.data.get('scanned')
+        # 'scanned' is intentionally excluded from client input.
+        # Scan time is determined server-side via timezone.now() to prevent client-side manipulation.
         scan_type = request.data.get('scan_type')
         device_name = request.data.get('device_name')
-        open_event = request.data.get('open_event')
+        # Normalize open_event to a proper boolean using helper.
+        open_event = _parse_boolean(request.data.get('open_event'))
         key = request.headers.get('Exhibitor')
 
-        if not all([pseudonymization_id, scanned, scan_type, device_name]):
+        # Explicitly reject 'scanned' if provided by client.
+        # Scan time is always determined server-side.
+        if 'scanned' in request.data:
+            return Response(
+                {'detail': "'scanned' is not an accepted field. Scan time is set server-side."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not all([pseudonymization_id, scan_type, device_name]):
             return Response(
                 {'detail': 'Missing parameters'},
                 status=status.HTTP_400_BAD_REQUEST

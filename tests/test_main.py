@@ -3,6 +3,9 @@ import re
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from django.utils import timezone
+from exhibition.models import Lead
+
 from exhibition.models import ExhibitorInfo
 
 
@@ -103,3 +106,60 @@ def test_delete_exhibitor_info(event):
 
     with pytest.raises(ExhibitorInfo.DoesNotExist):
         ExhibitorInfo.objects.get(id=exhibitor_id)
+
+
+@pytest.mark.django_db
+def test_lead_create_scanned_is_server_time(api_client, exhibitor, order_position):
+    # 'scanned' value sent by client should be ignored.
+    # Server must always set scan time via timezone.now().
+    before = timezone.now()
+    response = api_client.post(
+        '/api/leads/',
+        data={
+            'lead': order_position.pseudonymization_id,
+            'scan_type': 'qr',
+            'device_name': 'test_device',
+            'scanned': '2000-01-01T00:00:00Z',  # Even if a past time is sent, it must be ignored.
+        },
+        HTTP_EXHIBITOR=exhibitor.key
+    )
+    after = timezone.now()
+
+    assert response.status_code == 201
+    lead = Lead.objects.get(id=response.data['lead_id'])
+    assert before <= lead.scanned <= after  # Verify scan time is within server-side bounds.
+
+
+@pytest.mark.django_db
+def test_lead_create_open_event_string_false(api_client, exhibitor, order_position):
+    # String "false" must be treated as boolean False.
+    response = api_client.post(
+        '/api/leads/',
+        data={
+            'lead': order_position.secret,
+            'scan_type': 'qr',
+            'device_name': 'test_device',
+            'open_event': 'false',  # String value must be normalized to False.
+        },
+        HTTP_EXHIBITOR=exhibitor.key
+    )
+    # open_event=False means lookup is done by pseudonymization_id.
+    # Sending a secret instead should result in 404.
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_lead_create_rejects_client_scanned_field(api_client, exhibitor):
+    # 'scanned' sent by client must be explicitly rejected with 400.
+    response = api_client.post(
+        '/api/leads/',
+        data={
+            'lead': 'some-id',
+            'scan_type': 'qr',
+            'device_name': 'test_device',
+            'scanned': '2000-01-01T00:00:00Z',
+        },
+        HTTP_EXHIBITOR=exhibitor.key
+    )
+    assert response.status_code == 400
+    assert 'scanned' in response.data['detail']
